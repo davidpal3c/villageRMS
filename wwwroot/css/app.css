@@ -69,6 +69,11 @@ h1:focus {
     display: none;
 }
 
+.bii
+{
+    top:-13px !important;
+}
+
 @supports (-webkit-touch-callout: none) {
     .status-bar-safe-area {
         display: flex;

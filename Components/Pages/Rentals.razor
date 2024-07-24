@@ -1,0 +1,37 @@
+﻿@page "/rentals"
+
+<h1>Rentals</h1>
+
+@if (rentals.Count == 0)
+{
+    <p><em>There are no rental items at this time.</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th></th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var rental in rentals)
+            {
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Rentals> rentals = new List<Rentals>();
+
+}
