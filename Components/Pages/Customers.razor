@@ -1,7 +1,72 @@
 ﻿@page "/customers"
+@using Models
+@inject Services.DatabaseService DatabaseService
 
 <h1>Customers</h1>
+<p>@msg</p>
+
+@if (custList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <button type="submit" class="btn btn-success">
+        <i class="bi bi-person-add"></i>
+    </button>
+    <button type="submit" class="btn btn-secondary">
+        <i class="bi bi-arrow-clockwise"></i>
+    </button>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Edit/Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in custList)
+            {
+                <tr>
+                    <td>@c.CustomerId.ToString()</td>
+                    <td>@c.LastName , @c.FirstName</td>
+                    <td>@c.PhoneNumber</td>
+                    <td>@c.EmailAddress</td>
+                    <td>@c.Status</td>
+                    <td>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
 
 @code {
+    string msg = String.Empty;
+    List<Customer>? custList;
 
+    protected override async Task OnInitializedAsync()
+    {
+        if (DatabaseService.isSuccessfulConnection())
+        {
+            msg = "Connection - OK!";
+        }
+        else
+        {
+            msg = "Connection - ZZzz!";
+        }
+
+        custList = await DatabaseService.GetCustomers();
+    }
 }
