@@ -63,5 +63,28 @@ namespace VillageRMS.Services
 
             return custList;
         }
+
+        public async Task AddNewCustomer(List<string> customerData)
+        {
+            if (customerData == null || customerData.Count != 4)
+                throw new ArgumentException("Invalid customer data");
+
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string commandString = "INSERT INTO Customer (LastName, FirstName, ContactPhone, Email) VALUES (@LastName, @FirstName, @ContactPhone, @Email)";
+
+                using (var cmd = new MySqlCommand(commandString, conn))
+                {
+                    cmd.Parameters.AddWithValue("@LastName", customerData[0]);
+                    cmd.Parameters.AddWithValue("@FirstName", customerData[1]);
+                    cmd.Parameters.AddWithValue("@ContactPhone", customerData[2]);
+                    cmd.Parameters.AddWithValue("@Email", customerData[3]);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
     }
 }
