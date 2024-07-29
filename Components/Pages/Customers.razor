@@ -1,7 +1,122 @@
 ﻿@page "/customers"
+@using Models
+@inject Services.DatabaseService DatabaseService
 
 <h1>Customers</h1>
+<p>@msg</p>
+<div class="mt-3 bg-success text-white bg-opacity-75">
+    @testMsg
+</div>
+
+@if (custList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <Modal @ref="modal" />
+    <button type="submit" class="btn btn-success" @onclick="ShowCustomerAddModal">
+        <i class="bi bi-person-add"></i>
+    </button>
+    <button type="submit" class="btn btn-secondary">
+        <i class="bi bi-arrow-clockwise"></i>
+    </button>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Edit/Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in custList)
+            {
+                <tr>
+                    <td>@c.CustomerId.ToString()</td>
+                    <td>@c.LastName , @c.FirstName</td>
+                    <td>@c.PhoneNumber</td>
+                    <td>@c.EmailAddress</td>
+                    <td>@c.Status</td>
+                    <td>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
 
 @code {
+    //for modal
+    private Modal modal = default!;
+    string? testMsg;
+
+    string msg = String.Empty;
+    List<Customer>? custList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (DatabaseService.isSuccessfulConnection())
+        {
+            msg = "Connection - OK!";
+        }
+        else
+        {
+            msg = "Open ssh tunnel or reconfigure connection string at MauiProgram.cs";
+        }
+
+        //custList = await DatabaseService.GetCustomers();
+        await RefreshList();
+    }
+
+    //modal start
+    private async Task ShowCustomerAddModal()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnClickCallback", EventCallback.Factory.Create<List<string>>(this, TestSuccessCallback) }
+        };
+
+        await modal.ShowAsync<CustomerModal>(title: "New Customer", parameters: parameters);
+    }
+
+    private async Task TestSuccessCallback(List<string> newCustData)
+    {
+        try
+        {
+            testMsg = $"new customer data: {newCustData[0]} {newCustData[1]} {newCustData[2]} {newCustData[3]}";
+            await DatabaseService.AddNewCustomer(newCustData);
+            await RefreshList();
+            await modal.HideAsync();
+        } 
+        catch (Exception e)
+        {
+            testMsg = $"An error occurred: {e.Message}";
+        }
+
+
+    }
+
+    private async Task RefreshList()
+    {
+        try
+        {
+            custList = await DatabaseService.GetCustomers();
+        }
+        catch (Exception e)
+        {
+            testMsg = $"Error during refresh: {e.Message}";
+        }
+    }
 
 }

@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 
 namespace VillageRMS.Models
 {
-    internal class Customer : DatabaseConnection
+    public class Customer //: DatabaseConnection
     {
         private int _customerId;
         private string _lastName;
         private string _firstName;
         private string _phoneNumber;
         private string _emailAddress;
+        private string _status;
 
         public int CustomerId
         {
@@ -44,21 +45,27 @@ namespace VillageRMS.Models
             set { _emailAddress = value; }
         }
 
+        public string Status
+        {
+            get { return _status; }
+            set { _status = value; }
+        }
+
         public Customer() { }
 
-        public Customer(int customerId, string lastName, string firstName, string phoneNumber, string emailAddress)
+        public Customer(int customerId, string lastName, string firstName, string phoneNumber, string emailAddress, string status)
         {
             _customerId = customerId;
             _lastName = lastName;
             _firstName = firstName;
             _phoneNumber = phoneNumber;
             _emailAddress = emailAddress;
-        
+            _status = status;
         }
 
         public override string ToString()
         {
-            return "";
+            return $"ID:{CustomerId} Name: {LastName},{FirstName} Phone:{PhoneNumber} Status:{Status}";
         }
 
     }
