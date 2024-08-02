@@ -1,11 +1,33 @@
 ﻿@page "/"
+@using VillageRMS.Components
+@inject VillageRMS.Services.LoginStateService LoginStateService
 
 <h1>VillageRMS</h1>
 
 Welcome to Village Rental Management System
 
-@code {
-  
+<LoginModal @ref="loginModal" OnLoginSuccess="HandleLoginSuccess" />
 
-    
+@code {
+    private LoginModal loginModal;
+    bool showLoginModal = false;
+    private bool isInitialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            loginModal.ShowModal();
+            isInitialized = true;
+            StateHasChanged();
+        }
+    }
+
+    private void HandleLoginSuccess(bool success)
+    {
+        if (success)
+        {
+            showLoginModal = false;
+        }
+    }
 }
