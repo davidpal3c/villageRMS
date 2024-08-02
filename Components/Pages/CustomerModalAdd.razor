@@ -20,6 +20,8 @@
     Submit
 </Button>
 
+
+
 @code {
     [Parameter] public EventCallback<List<string>> OnClickCallback { get; set; }
 
@@ -37,8 +39,8 @@
     private async Task HandleClick()
     {
         returnVal.Clear();
-        if (!string.IsNullOrEmpty(_firstName)) returnVal.Add(_firstName);
         if (!string.IsNullOrEmpty(_lastName)) returnVal.Add(_lastName);
+        if (!string.IsNullOrEmpty(_firstName)) returnVal.Add(_firstName);        
         if (!string.IsNullOrEmpty(_phone)) returnVal.Add(_phone);
         if (!string.IsNullOrEmpty(_email)) returnVal.Add(_email);
 

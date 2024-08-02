@@ -1,0 +1,63 @@
+﻿@using Models
+@using Services
+@using Microsoft.AspNetCore.Components.Forms
+
+<!-- Update Customer -->
+
+<EditForm Model="customer" OnValidSubmit="HandleClick">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label class="form-label mt-2" for="fn">First Name</label>
+        <InputText @bind-Value="customer.FirstName" class="form-control" id="fn" />
+        <ValidationMessage For="@(() => customer.FirstName)" />
+    </div>
+    <div class="form-group">
+        <label class="form-label mt-2" for="ln">Last Name</label>
+        <InputText @bind-Value="customer.LastName" class="form-control" id="ln" />
+        <ValidationMessage For="@(() => customer.LastName)" />
+    </div>
+    <div class="form-group">
+        <label class="form-label mt-2" for="phone">Phone</label>
+        <InputText @bind-Value="customer.PhoneNumber" class="form-control" id="phone" />
+        <!--
+        <InputNumber @bind-Value="customer.PhoneNumber" class="form-control" id="phone" />
+        -->
+        <ValidationMessage For="@(() => customer.PhoneNumber)" />
+    </div>
+    <div class="form-group">
+        <label class="form-label mt-2" for="email">Email</label>
+        <InputText @bind-Value="customer.EmailAddress" class="form-control" id="email" />
+        <ValidationMessage For="@(() => customer.EmailAddress)" />
+    </div>
+
+    <div class="form-group">
+        <label class="form-label mt-2" for="status">Status</label>
+        <InputText @bind-Value="customer.Status" class="form-control" id="status" />
+        <ValidationMessage For="@(() => customer.Status)" />
+    </div>
+
+    <Button class="mt-3 btn btn-primary" Type="ButtonType.Submit">
+        Update
+    </Button>
+</EditForm>
+
+@code {
+    [Parameter] public Customer customer { get; set; } = new Customer();
+    [Parameter] public EventCallback<Customer> OnClickCallback { get; set; }
+
+
+    private async Task HandleClick()
+    {
+        try
+        {
+            await OnClickCallback.InvokeAsync(customer);
+        }
+        catch (Exception ex)
+        {            
+            throw new Exception(ex.Message);
+        }
+    }
+
+}
