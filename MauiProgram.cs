@@ -28,6 +28,8 @@ namespace VillageRMS
             builder.Services.AddMauiBlazorWebView();
             //glc
             builder.Services.AddBlazorBootstrap();
+            //register login glc
+            builder.Services.AddSingleton<LoginStateService>();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
