@@ -31,6 +31,7 @@ namespace VillageRMS.Models
             this._status = status;
         }
 
+
         public override string ToString()
         {
             return $"ID:{CustomerId} Name: {LastName},{FirstName} Phone:{PhoneNumber} Email:{EmailAddress} Status:{Status}";

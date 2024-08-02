@@ -2,6 +2,7 @@
 @using Models
 @inject Services.DatabaseService DatabaseService
 
+
 <h1>Customers</h1>
 <p>@msg</p>
 <div class="mt-3 bg-success text-white bg-opacity-75">
@@ -18,7 +19,7 @@ else
     <button type="submit" class="btn btn-success" @onclick="ShowCustomerAddModal">
         <i class="bi bi-person-add"></i>
     </button>
-    <button type="submit" class="btn btn-secondary">
+    <button type="submit" class="btn btn-secondary" @onclick="RefreshList">
         <i class="bi bi-arrow-clockwise"></i>
     </button>
     <table class="table">
@@ -41,11 +42,12 @@ else
                     <td>@c.PhoneNumber</td>
                     <td>@c.EmailAddress</td>
                     <td>@c.Status</td>
-                    <td>
-                        <button type="submit" class="btn btn-primary">
+                    <td>                        
+                        <button type="submit" class="btn btn-primary" @onclick="() => ShowCustomerUpdateModal(c)">
                             <i class="bi bi-pencil-square"></i>
                         </button>
-                        <button type="submit" class="btn btn-danger">
+
+                        <button type="submit" class="btn btn-danger" @onclick="() => ShowDeleteConfirmationModal(c)">
                             <i class="bi bi-trash"></i>
                         </button>
                     </td>
@@ -53,16 +55,20 @@ else
             }
         </tbody>
     </table>
+
 }
 
 
 @code {
     //for modal
-    private Modal modal = default!;
+    private Modal modal = default!;    
+    private bool showDeleteConfirmation = false;
     string? testMsg;
 
     string msg = String.Empty;
     List<Customer>? custList;
+
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -79,18 +85,19 @@ else
         await RefreshList();
     }
 
-    //modal start
+    //AddModal start
     private async Task ShowCustomerAddModal()
     {
         var parameters = new Dictionary<string, object>
         {
-            { "OnClickCallback", EventCallback.Factory.Create<List<string>>(this, TestSuccessCallback) }
+            { "OnClickCallback", EventCallback.Factory.Create<List<string>>(this, TestSuccessCallbackAdd) }
         };
 
-        await modal.ShowAsync<CustomerModal>(title: "New Customer", parameters: parameters);
+        await modal.ShowAsync<CustomerModalAdd>(title: "New Customer", parameters: parameters);
     }
 
-    private async Task TestSuccessCallback(List<string> newCustData)
+
+    private async Task TestSuccessCallbackAdd(List<string> newCustData)
     {
         try
         {
@@ -103,8 +110,6 @@ else
         {
             testMsg = $"An error occurred: {e.Message}";
         }
-
-
     }
 
     private async Task RefreshList()
@@ -116,6 +121,87 @@ else
         catch (Exception e)
         {
             testMsg = $"Error during refresh: {e.Message}";
+        }
+    }
+
+
+
+    private async Task ShowCustomerUpdateModal(Customer customer)
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "Customer", customer }, 
+            { "OnClickCallback", EventCallback.Factory.Create<Customer>(this, TestSuccessCallbackUpdate)}
+        };
+
+        await modal.ShowAsync<CustomerModalUpdate>(title: "Update Customer", parameters: parameters);
+    }
+
+
+
+    private async Task TestSuccessCallbackUpdate(Customer updatedCustomer)
+    {
+        try
+        {
+
+            testMsg = $"CustomerID: {updatedCustomer.CustomerId}, First name: {updatedCustomer.FirstName}, Last Name: {updatedCustomer.LastName}, updated successfully";
+            await DatabaseService.UpdateCustomer(updatedCustomer);
+            await RefreshList();
+            await modal.HideAsync();
+        }
+        catch (Exception e)
+        {
+            testMsg = $"An error occurred: {e.Message}";
+        }
+    }
+
+
+
+    private async Task ShowDeleteConfirmationModal(Customer customer)
+    {        
+        showDeleteConfirmation = true;
+
+        var parameters = new Dictionary<string, object>
+        {
+            { "Customer", customer },
+            { "OnClickCallback", EventCallback.Factory.Create<(Customer, bool)>(this, ConfirmCallbackDelete) }
+        };
+
+        await modal.ShowAsync<CustomerModalDelete>(title: "Delete Customer", parameters: parameters);
+    }
+
+
+
+    private async Task ConfirmCallbackDelete((Customer customer, bool confirmed) args)
+    {
+        var (customer, confirmed) = args;
+
+        try
+        {
+
+            if (confirmed)
+            {                
+                await DatabaseService.DeleteCustomer(customer);
+                testMsg = $"CustomerID: {customer.CustomerId}, First name: {customer.FirstName}, Last Name: {customer.LastName}, deleted successfully";
+                await RefreshList();                
+            }
+            else
+            {
+                //customer = null;
+                testMsg = "Customer deletion was canceled.";
+                await RefreshList();                
+            }
+
+            await modal.HideAsync();
+
+        }
+        catch (Exception e)
+        {
+            testMsg = $"An error occurred: {e.Message}";
+        }
+        finally
+        {
+            showDeleteConfirmation = false;
         }
     }
 

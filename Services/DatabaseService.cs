@@ -86,5 +86,50 @@ namespace VillageRMS.Services
                 }
             }
         }
+
+
+        public async Task UpdateCustomer(Customer updatedCustomer)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string commandString = "UPDATE Customer SET LastName = @Lastname, FirstName = @FirstName, ContactPhone = @ContactPhone, Email = @Email, Status = @Status WHERE CustomerID = @CustomerId";
+
+                using (var cmd = new MySqlCommand(commandString, conn))
+                {
+                    cmd.Parameters.AddWithValue("@LastName", updatedCustomer.LastName);
+                    cmd.Parameters.AddWithValue("@FirstName", updatedCustomer.FirstName);
+                    cmd.Parameters.AddWithValue("@ContactPhone", updatedCustomer.PhoneNumber);
+                    cmd.Parameters.AddWithValue("@Email", updatedCustomer.EmailAddress);
+                    cmd.Parameters.AddWithValue("@Status", updatedCustomer.Status);
+                    cmd.Parameters.AddWithValue("@CustomerId", updatedCustomer.CustomerId);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+        public async Task DeleteCustomer(Customer customer)
+        {
+            
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string commandString = "DELETE FROM Customer WHERE CustomerId = @CustomerId";
+
+                using (var cmd = new MySqlCommand(commandString, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CustomerId", customer.CustomerId);
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+            
+        }
+
+
     }
 }
+
+
