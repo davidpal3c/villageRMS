@@ -14,14 +14,29 @@
     <p><em>Loading...</em></p>
 }
 else
-{
+{  
+    <div class="nav-header"> 
+        <div>
+            <form @onsubmit="FilterCustomers">
+                <input type="text" @bind="name" class="search-field" placeholder="Name"/>
+                <button type="submit" class="btn btn-dark"><i class="bi bi-search"></i></button>
+            </form>
+        </div>
+
+        <div>            
+            <button type="submit" class="btn btn-success" @onclick="ShowCustomerAddModal">
+                <i class="bi bi-person-add"></i>
+            </button>
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-secondary" @onclick="RefreshList">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+        </div>
+    </div>
+
     <Modal @ref="modal" />
-    <button type="submit" class="btn btn-success" @onclick="ShowCustomerAddModal">
-        <i class="bi bi-person-add"></i>
-    </button>
-    <button type="submit" class="btn btn-secondary" @onclick="RefreshList">
-        <i class="bi bi-arrow-clockwise"></i>
-    </button>
     <table class="table">
         <thead>
             <tr>
@@ -34,28 +49,55 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var c in custList)
-            {
-                <tr>
-                    <td>@c.CustomerId.ToString()</td>
-                    <td>@c.LastName , @c.FirstName</td>
-                    <td>@c.PhoneNumber</td>
-                    <td>@c.EmailAddress</td>
-                    <td>@c.Status</td>
-                    <td>                        
-                        <button type="submit" class="btn btn-primary" @onclick="() => ShowCustomerUpdateModal(c)">
-                            <i class="bi bi-pencil-square"></i>
-                        </button>
 
-                        <button type="submit" class="btn btn-danger" @onclick="() => ShowDeleteConfirmationModal(c)">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </td>
-                </tr>
+            @if (filteredData != null)
+            {
+                @foreach (Customer c in filteredData)
+                {
+                    <tr>
+                        <td>@c.CustomerId.ToString()</td>
+                        <td>@c.LastName , @c.FirstName</td>
+                        <td>@c.PhoneNumber</td>
+                        <td><a href="mailto:@c.EmailAddress">@c.EmailAddress</a></td>
+                        <td>@c.Status</td>
+                        <td>
+                            <button type="submit" class="btn btn-primary" @onclick="() => ShowCustomerUpdateModal(c)">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+
+                            <button type="submit" class="btn btn-danger" @onclick="() => ShowDeleteConfirmationModal(c)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
             }
+            else
+            {
+                @foreach (Customer c in custList)
+                {
+                    <tr>
+                        <td>@c.CustomerId.ToString()</td>
+                        <td>@c.LastName , @c.FirstName</td>
+                        <td>@c.PhoneNumber</td>
+                        <td><a href="mailto:@c.EmailAddress">@c.EmailAddress</a></td>
+                        <td>@c.Status</td>
+                        <td>
+                            <button type="submit" class="btn btn-primary" @onclick="() => ShowCustomerUpdateModal(c)">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+
+                            <button type="submit" class="btn btn-danger" @onclick="() => ShowDeleteConfirmationModal(c)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+
         </tbody>
     </table>
-
+    
 }
 
 
@@ -66,7 +108,12 @@ else
     string? testMsg;
 
     string msg = String.Empty;
-    List<Customer>? custList;
+    private List<Customer>? custList;
+
+    private List<Customer>? filteredData = new List<Customer>();
+    private List<Customer>? result;
+
+    private string? name;
 
 
 
@@ -84,6 +131,37 @@ else
         //custList = await DatabaseService.GetCustomers();
         await RefreshList();
     }
+
+
+    private void FilterCustomers()
+    {
+        if (custList == null || !custList.Any())
+        {
+            return;
+        }
+
+        result = new List<Models.Customer>();
+
+        foreach (Models.Customer customer in custList)
+        {
+            bool match = true;
+
+            if (!string.IsNullOrEmpty(name) &&
+                !(customer.FirstName.Contains(name, StringComparison.OrdinalIgnoreCase) ||
+                  customer.LastName.Contains(name, StringComparison.OrdinalIgnoreCase)))
+            {
+                match = false;
+            }
+
+            if (match)
+            {
+                result.Add(customer);
+            }
+
+        }
+        filteredData = result;
+    }
+
 
     //AddModal start
     private async Task ShowCustomerAddModal()
@@ -117,6 +195,7 @@ else
         try
         {
             custList = await DatabaseService.GetCustomers();
+            filteredData = null;
         }
         catch (Exception e)
         {
