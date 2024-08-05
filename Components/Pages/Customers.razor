@@ -105,9 +105,9 @@ else
     //for modal
     private Modal modal = default!;    
     private bool showDeleteConfirmation = false;
-    string? testMsg;
+    private string? testMsg;
 
-    string msg = String.Empty;
+    private string msg = String.Empty;
     private List<Customer>? custList;
 
     private List<Customer>? filteredData = new List<Customer>();
@@ -162,6 +162,19 @@ else
         filteredData = result;
     }
 
+    private async Task RefreshList()
+    {
+        try
+        {
+            custList = await DatabaseService.GetCustomers();
+            filteredData = null;
+        }
+        catch (Exception e)
+        {
+            testMsg = $"Error during refresh: {e.Message}";
+        }
+    }
+
 
     //AddModal start
     private async Task ShowCustomerAddModal()
@@ -187,19 +200,6 @@ else
         catch (Exception e)
         {
             testMsg = $"An error occurred: {e.Message}";
-        }
-    }
-
-    private async Task RefreshList()
-    {
-        try
-        {
-            custList = await DatabaseService.GetCustomers();
-            filteredData = null;
-        }
-        catch (Exception e)
-        {
-            testMsg = $"Error during refresh: {e.Message}";
         }
     }
 

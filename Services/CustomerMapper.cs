@@ -5,7 +5,7 @@ namespace VillageRMS.Services
 {
     public class CustomerMapper
     {
-        public Customer MapFromReader(MySqlDataReader reader)
+        public Customer MapFromReaderCustomer(MySqlDataReader reader)
         {
             try
             {
@@ -30,6 +30,28 @@ namespace VillageRMS.Services
             }
             
         }
+
+        public RentalCategory MapFromReaderCategory(MySqlDataReader reader)
+        {
+            try
+            {
+                RentalCategory category = new RentalCategory();                               
+
+                return new RentalCategory
+                {
+                    CategoryId = reader.GetInt32("category_id"),
+                    CategoryDescription = reader.GetString("category_description")
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
+        
+
+
     }
 
 }

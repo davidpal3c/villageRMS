@@ -1,7 +1,154 @@
 ﻿@page "/categories"
+@using Models
+@using Services
+@inject Services.DatabaseService DatabaseService
+
 
 <h1>Rental Categories</h1>
 
+<div class="nav-header">
+    <div>
+        <form @onsubmit="FilterCategories">
+            <input type="text" @bind="enteredCategory" class="search-field" placeholder="Name" />
+            <button type="submit" class="btn btn-dark"><i class="bi bi-search"></i></button>
+        </form>
+    </div>
+
+    <div>
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-person-add"></i>
+        </button>
+    </div>
+
+    <div>
+        <button type="submit" class="btn btn-secondary">
+            <i class="bi bi-arrow-clockwise"></i>
+        </button>
+    </div>
+</div>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Category Name</th>
+            <th>Edit/Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (filteredData != null)
+        {
+            @foreach (RentalCategory c in filteredData)
+            {
+                <tr>
+                    <td>@c.CategoryId.ToString()</td>
+                    <td>@c.CategoryDescription</td>
+                    <td class="edit-delete-column">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+        else 
+        {
+            @foreach (RentalCategory c in categoryList)
+            {
+                <tr>
+                    <td>@c.CategoryId.ToString()</td>
+                    <td>@c.CategoryDescription</td>
+                    <td>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+
 @code {
+    private List<RentalCategory> categoryList;
+    string msg = String.Empty;
+    string? testMsg;
+    private List<RentalCategory>? filteredData = new List<RentalCategory>();
+    private List<RentalCategory>? result;
+    private string enteredCategory;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (DatabaseService.isSuccessfulConnection())
+        {
+            msg = "Connection - OK!";
+        }
+        else
+        {
+            msg = "Open ssh tunnel or reconfigure connection string at MauiProgram.cs";
+        }
+
+        //custList = await DatabaseService.GetCustomers();
+        await RefreshList();
+    }
+
+
+    private async Task RefreshList()
+    {
+        try
+        {
+            categoryList = await DatabaseService.GetCategories();
+            filteredData = null;
+        }
+        catch (Exception e)
+        {
+            testMsg = $"Error during refresh: {e.Message}";
+        }
+    }
+
+
+    private void FilterCategories()
+    {
+        if (categoryList == null || !categoryList.Any())
+        {
+            return;
+        }
+
+        result = new List<Models.RentalCategory>();
+
+        string int_trimmed = enteredCategory.Trim();        
+        bool isInteger = int.TryParse(int_trimmed, out int enteredInt);
+                
+
+        foreach (Models.RentalCategory category in categoryList)
+        {
+            bool match = true;                        
+
+            if (!string.IsNullOrEmpty(enteredCategory) && !category.CategoryDescription.Contains(enteredCategory, StringComparison.OrdinalIgnoreCase))
+            {
+                match = false;
+            }
+
+            if (match)
+            {
+                result.Add(category);
+            }
+
+        }
+        filteredData = result;
+    }
+
+
+
 
 }
