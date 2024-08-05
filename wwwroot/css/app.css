@@ -112,3 +112,8 @@ h1:focus {
     border: 1px solid rgba(128, 128, 128, 0.5);
 }
 
+
+.edit-delete-column {
+    margin-left: 33rem;
+}
+

@@ -54,7 +54,7 @@ namespace VillageRMS.Services
                     {
                         while (await reader.ReadAsync())
                         {
-                            var customer = _custMapper.MapFromReader(reader);
+                            var customer = _custMapper.MapFromReaderCustomer(reader);
                             custList.Add(customer);
                         }
                     }
@@ -128,6 +128,30 @@ namespace VillageRMS.Services
             
         }
 
+
+        public async Task<List<RentalCategory>> GetCategories()
+        {
+            var categoryList = new List<RentalCategory>();
+
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                using (var cmd = new MySqlCommand("SELECT * FROM category_list", conn))
+                {
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var category = _custMapper.MapFromReaderCategory(reader);
+                            categoryList.Add(category);
+                        }
+                    }
+                }
+            }
+
+            return categoryList;
+        }
 
     }
 }
