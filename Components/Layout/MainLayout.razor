@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@inject VillageRMS.Services.LoginStateService LoginService
+@inject NavigationManager Navigation
 
 <div class="page">
     <div class="sidebar">
@@ -7,11 +9,55 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">Logout</a>
+            <div class="nav-item px-3">
+                @if (LoginService.IsLoggedIn)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="LogOff">
+                        <i class="bi bi-door-closed fs-5 mb-4"></i>
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-primary" @onclick="ShowLoginModal">
+                        <i class="bi bi-door-open fs-5 mb-4"></i>
+                    </button>
+                }
+            </div>
         </div>
 
         <article class="content px-4">
             @Body
         </article>
     </main>
+
+    <LoginModal Visible="showLoginModal" VisibleChanged="OnLoginModalVisibilityChanged" OnLoginSuccess="HandleLoginSuccess" />
 </div>
+
+@code{
+    private bool showLoginModal;
+
+    private void LogOff()
+    {
+        LoginService.IsLoggedIn = false;
+        Navigation.NavigateTo("/");
+    }
+
+    private void ShowLoginModal()
+    {
+        showLoginModal = true;
+    }
+
+    private void OnLoginModalVisibilityChanged(bool visible)
+    {
+        showLoginModal = visible;
+    }
+
+    private void HandleLoginSuccess(bool success)
+    {
+        if (success)
+        {
+            LoginService.IsLoggedIn = true;
+            showLoginModal = false;
+        }
+    }
+}
