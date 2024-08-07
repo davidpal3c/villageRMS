@@ -1,0 +1,331 @@
+﻿@page "/rental-equipment"
+@using Models
+@using Services
+@inject Services.DatabaseService DatabaseService
+
+
+
+
+<h1>Rental Equipment</h1>
+
+<p>@msg</p>
+<div class="mt-3 bg-success text-white bg-opacity-75">
+    @testMsg
+</div>
+
+
+@if (equipmentList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="nav-header">
+        <div>
+            <form @onsubmit="FilterEquipment">
+                <input type="text" @bind="searchStr" class="search-field" placeholder="Search" />
+                <button type="submit" class="btn btn-dark"><i class="bi bi-search"></i></button>
+            </form>
+        </div>
+
+        <div>
+            <button type="button" class="btn btn-success" @onclick="ShowEquipmentAddModal">
+                <i class="bi bi-person-add"></i>
+            </button>
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-secondary">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+        </div>
+    </div>
+
+    <Modal @ref="modal" />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Daily Cost</th>
+                <th>Edit/Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @if (filteredData != null)
+            {
+                @foreach (Models.RentalEquipment e in filteredData)
+                {
+                    <tr>
+                        <td>@e.EquipmentId.ToString()</td>
+                        <td>@e.Name</td>
+                        <td>@e.CategoryDescription</td>
+                        <td>@e.Description</td>
+
+                        <td>@e.Daily_rental_cost.ToString("C")</td>
+                        <td class="edit-delete-btn-box">
+                            <button type="submit" class="btn btn-primary" @onclick="() => ShowEquipmentUpdateModal(e)">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                @foreach (Models.RentalEquipment e in equipmentList)
+                {
+                    <tr>
+                        <td>@e.EquipmentId.ToString()</td>
+                        <td>@e.Name</td>
+                        <td>@e.CategoryDescription</td>
+                        <td>@e.Description</td>
+
+                        <td>@e.Daily_rental_cost.ToString("C")</td>
+                        <td class="edit-delete-btn-box">
+                            <button type="submit" class="btn btn-primary" @onclick="() => ShowEquipmentUpdateModal(e)">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+
+                            <button type="submit" class="btn btn-danger" @onclick=" () => ShowDeleteConfirmationModal(e)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+
+        </tbody>
+    </table>
+
+}
+
+
+@code {
+    private List<RentalEquipment>? equipmentList;
+    string? msg = String.Empty;
+    string? testMsg;
+
+    private List<RentalEquipment>? filteredData = new List<Models.RentalEquipment>();
+    private List<RentalEquipment>? result;
+    private Modal modal = default!;
+
+    private string searchStr;
+    private string enteredCategory = string.Empty;
+
+    private bool showDeleteConfirmation = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (DatabaseService.isSuccessfulConnection())
+        {
+            msg = "Connection - OK!";
+        }
+        else
+        {
+            msg = "Open ssh tunnel or reconfigure connection string at MauiProgram.cs";
+        }
+
+        //custList = await DatabaseService.GetCustomers();
+        await RefreshList();
+    }
+
+
+    private async Task RefreshList()
+    {
+        try
+        {
+            equipmentList = await DatabaseService.GetRentalEquipmentAsync();             
+            filteredData = null;
+
+            if(equipmentList != null && equipmentList.Any())
+            {
+                msg = "List populated";
+            }
+            else
+            {
+                msg = "Empty equipment list";
+            }
+
+        }
+        catch (Exception e)
+        {
+            testMsg = $"Error during refresh: {e.Message}";
+        }
+
+    }
+
+    private void FilterEquipment()
+    {
+        if (equipmentList == null || !equipmentList.Any())
+        {
+            return;
+        }
+
+        result = new List<Models.RentalEquipment>();
+
+
+        foreach (Models.RentalEquipment equipment in equipmentList)
+        {
+            bool match = true;
+
+            /*
+            bool containsDigit = searchStr.Any(char.IsAsciiDigit);
+
+            //please revise - couldnt get it to work properly
+                if (containsDigit)
+                {
+                string trimmedStr = searchStr.Trim();
+
+                if (int.TryParse(trimmedStr, out int searchInt))
+                    {                    
+                        if (equipment.EquipmentId == searchInt)
+                    {
+                match = true;
+            }
+            }
+                }
+                else
+                {
+                if (!string.IsNullOrEmpty(searchStr) &&
+                    !(equipment.Name.Contains(searchStr, StringComparison.OrdinalIgnoreCase) ||
+                    equipment.CategoryDescription.Contains(searchStr, StringComparison.OrdinalIgnoreCase) ||
+                    equipment.Description.Contains(searchStr, StringComparison.OrdinalIgnoreCase)))
+                    {
+                match = false;
+            }
+            }    
+            */
+
+            if (!string.IsNullOrEmpty(searchStr) &&
+                !(equipment.Name.Contains(searchStr, StringComparison.OrdinalIgnoreCase) ||
+                equipment.CategoryDescription.Contains(searchStr, StringComparison.OrdinalIgnoreCase) ||
+                equipment.Description.Contains(searchStr, StringComparison.OrdinalIgnoreCase)))
+            {
+                match = false;
+            }
+
+            if (match)
+            {
+                result.Add(equipment);
+            }
+
+        }
+        filteredData = result;
+    }
+
+
+    private async Task ShowEquipmentAddModal()
+    {
+
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnClickCallback", EventCallback.Factory.Create<List<object>>(this, TestSuccessCallbackAdd) }
+        };
+
+        await modal.ShowAsync<EquipmentModalAdd>(title: "New Equipment", parameters: parameters);
+    }
+
+
+    private async Task TestSuccessCallbackAdd(List<object> newEquipData)
+    {
+        try
+        {
+            testMsg = $"new customer data: {newEquipData[0]} {newEquipData[1]} {newEquipData[2]} {newEquipData[3]}";
+            await DatabaseService.AddNewEquipment(newEquipData);
+            await RefreshList();
+            await modal.HideAsync();
+        }
+        catch (Exception e)
+        {
+            testMsg = $"An error occurred: {e.Message}";
+        }
+    }
+
+
+    private async Task ShowEquipmentUpdateModal(RentalEquipment equipment)
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "Equipment", equipment},
+            { "OnClickCallback", EventCallback.Factory.Create<RentalEquipment>(this, TestSuccessCallbackUpdate)}
+        };
+
+        await modal.ShowAsync<EquipmentModalUpdate>(title: "Update Customer", parameters: parameters);
+    }
+
+
+
+    private async Task TestSuccessCallbackUpdate(RentalEquipment updatedEquipment)
+    {
+        try
+        {
+            //testMsg = $"CustomerID: {updatedCustomer.CustomerId}, First name: {updatedCustomer.FirstName}, Last Name: {updatedCustomer.LastName}, updated successfully";
+            await DatabaseService.UpdateEquipment(updatedEquipment);
+            await RefreshList();
+            await modal.HideAsync();
+        }
+        catch (Exception e)
+        {
+            testMsg = $"An error occurred: {e.Message}";
+        }
+    }
+
+
+    private async Task ShowDeleteConfirmationModal(RentalEquipment equipment)
+    {
+        showDeleteConfirmation = true;
+
+        var parameters = new Dictionary<string, object>
+        {
+            { "Equipment", equipment },
+            { "OnClickCallback", EventCallback.Factory.Create<(RentalEquipment, bool)>(this, ConfirmCallbackDelete) }
+        };
+
+        await modal.ShowAsync<EquipmentModalDelete>(title: "Delete Equipment", parameters: parameters);
+    }
+
+
+
+    private async Task ConfirmCallbackDelete((RentalEquipment equipment, bool confirmed) args)
+    {
+        var (equipment, confirmed) = args;
+
+        try
+        {
+            if (confirmed)
+            {
+                await DatabaseService.DeleteEquipment(equipment);
+                testMsg = $"EquipmentID: {equipment.EquipmentId}, Name: {equipment.Name}, Category: {equipment.CategoryId}, deleted successfully";
+                await RefreshList();                
+            }
+            else
+            {
+                //equipment = null;
+                testMsg = "Equipment deletion was canceled.";
+                await RefreshList();                
+            }
+
+            await modal.HideAsync();
+
+        }
+        catch (Exception e)
+        {
+            testMsg = $"An error occurred: {e.Message}";
+        }
+        finally
+        {
+            showDeleteConfirmation = false;
+        }
+    }
+
+}

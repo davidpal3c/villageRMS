@@ -1,0 +1,41 @@
+﻿@using Models
+@using Components
+
+<!-- Customer Delete Confirmation -->
+<div class="modal fade show d-block" tabindex="-1" role="dialog" style="display: block;">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" aria-label="Close" @onclick="CloseDeleteConfirmation"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the customer: <strong>@Equipment.Name @Equipment.CategoryId</strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="CloseDeleteConfirmation">Cancel</button>
+                <button type="button" class="btn btn-danger" @onclick="ConfirmDeleteCustomer">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public RentalEquipment Equipment { get; set; } = new RentalEquipment();
+    [Parameter] public EventCallback<(RentalEquipment Equipment, bool Confirmed)> OnClickCallback { get; set; }
+
+    private void ConfirmDeleteCustomer()
+    {
+        HandleClick(true);
+    }
+
+    private void CloseDeleteConfirmation()
+    {
+        HandleClick(false);
+    }
+
+    private async void HandleClick(bool confirmed)
+    {
+        await OnClickCallback.InvokeAsync((Equipment, confirmed));
+    }
+}
