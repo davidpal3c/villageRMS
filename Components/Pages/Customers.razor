@@ -116,7 +116,6 @@ else
     private string? name;
 
 
-
     protected override async Task OnInitializedAsync()
     {
         if (DatabaseService.isSuccessfulConnection())
@@ -222,7 +221,6 @@ else
     {
         try
         {
-
             testMsg = $"CustomerID: {updatedCustomer.CustomerId}, First name: {updatedCustomer.FirstName}, Last Name: {updatedCustomer.LastName}, updated successfully";
             await DatabaseService.UpdateCustomer(updatedCustomer);
             await RefreshList();

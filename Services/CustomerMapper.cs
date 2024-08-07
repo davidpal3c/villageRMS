@@ -1,5 +1,7 @@
 ﻿using VillageRMS.Models;
 using MySqlConnector;
+using System.Data;
+
 
 namespace VillageRMS.Services
 {
@@ -49,8 +51,37 @@ namespace VillageRMS.Services
             }
 
         }
-        
 
+        public async Task<RentalEquipment> MapFromReaderEquipmentAsync(MySqlDataReader reader)
+        {
+            try
+            {
+                RentalEquipment equipment = new RentalEquipment
+                {
+                    EquipmentId = reader.GetInt32("equipment_id"),                    
+                    Name = reader.GetString("name"),
+                    Description = reader.GetString("description"),
+                    Daily_rental_cost = reader.GetDouble("daily_rental_cost")                                        
+                };
+
+                int categoryId = reader.GetInt32("category");
+                string categoryDescription = reader.IsDBNull("category_description") ? "" : reader.GetString("category_description");
+
+                equipment._category = new RentalCategory
+                {
+                    CategoryId = categoryId,
+                    CategoryDescription = categoryDescription
+                };
+
+                return equipment;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
 
     }
 

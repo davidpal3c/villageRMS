@@ -113,7 +113,10 @@ h1:focus {
 }
 
 
-.edit-delete-column {
-    margin-left: 33rem;
+edit-delete-btn-box,
+edit-delete-btn {
+    display: flex;
+    flex-direction: row;
+    border: 1px solid black;
 }
 
