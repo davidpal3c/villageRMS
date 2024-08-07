@@ -69,15 +69,6 @@ h1:focus {
     display: none;
 }
 
-.bii-item
-{
-    padding-inline:15px !important;
-    display:flex;
-    flex-flow:row nowrap;
-    align-items:center;
-
-}
-
 @supports (-webkit-touch-callout: none) {
     .status-bar-safe-area {
         display: flex;
@@ -144,5 +135,14 @@ edit-delete-btn {
 h2
 {
     font-weight:600;
+}
+
+bii
+{
+    display:block;
+    margin-left:15px;
+    left:15px;
+    right:15px;
+    margin-right:15px;
 }
 

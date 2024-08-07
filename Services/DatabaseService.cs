@@ -286,7 +286,7 @@ namespace VillageRMS.Services
         }
 
 
-        public async Task AddRental(List<string> rentalData)
+        public async Task AddRental(List<object> rentalData)
         {
             if (rentalData == null || rentalData.Count != 4)
                 throw new ArgumentException("Invalid rental data");
