@@ -49,7 +49,31 @@ namespace VillageRMS.Services
             }
 
         }
-        
+
+        public Rental MapFromReaderRental(MySqlDataReader reader)
+        {
+            try
+            {
+                Rental rental = new Rental();
+
+                return new Rental
+                {
+                    RentalId = reader.GetInt32("rental_id"),
+                    CustomerId = reader.GetInt32("customer_id"),
+                    EquipmentId = reader.GetInt32("equipment_id"),
+                    CurrentDate = reader.GetDateTime("current_date"),
+                    RentalDate = reader.GetDateTime("rental_date"),
+                    ReturnDate = reader.GetDateTime("return_date"),
+                    Cost = reader.GetDouble("cost")
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
+
 
 
     }
