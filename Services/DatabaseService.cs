@@ -315,20 +315,28 @@ namespace VillageRMS.Services
         {
             using (MySqlConnection conn = new MySqlConnection(_connectionString))
             {
-                await conn.OpenAsync();
-
-                string commandString = "UPDATE rental_equipment SET name = @Name, category = @CategoryId, description = @Description, daily_rental_cost = @DailyCost WHERE equipment_id = @EquipmentId";
-
-                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                try
                 {
-                    cmd.Parameters.AddWithValue("@Name", updateEquipment.Name);
-                    cmd.Parameters.AddWithValue("@CategoryId", updateEquipment.CategoryId);
-                    cmd.Parameters.AddWithValue("@Description", updateEquipment.Description);
-                    cmd.Parameters.AddWithValue("@DailyCost", updateEquipment.Daily_rental_cost);
-                    cmd.Parameters.AddWithValue("@EquipmentId", updateEquipment.EquipmentId);
+                    await conn.OpenAsync();
 
-                    await cmd.ExecuteNonQueryAsync();
+                    string commandString = "UPDATE rental_equipment SET name = @Name, category = @CategoryId, description = @Description, daily_rental_cost = @DailyCost WHERE equipment_id = @EquipmentId";
+
+                    using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Name", updateEquipment.Name);
+                        cmd.Parameters.AddWithValue("@CategoryId", updateEquipment.CategoryId);
+                        cmd.Parameters.AddWithValue("@Description", updateEquipment.Description);
+                        cmd.Parameters.AddWithValue("@DailyCost", updateEquipment.Daily_rental_cost);
+                        cmd.Parameters.AddWithValue("@EquipmentId", updateEquipment.EquipmentId);
+
+                        await cmd.ExecuteNonQueryAsync();
+                    }
                 }
+                catch (Exception e)
+                {
+                    throw new Exception(e.Message);
+                }
+                
             }
         }
 
