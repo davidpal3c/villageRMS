@@ -1,7 +1,7 @@
 ﻿<!-- Add New Rental -->
 <div class="form-group">
     <label class="form-label mt-2" for="currentdate">Current Date</label>
-    <input type="text" @bind="_currentDate" class="form-control" id="currentdate" />
+    <input type="date" @bind="_currentDate" class="form-control" id="currentdate" />
 </div>
 <div class="form-group">
     <label class="form-label mt-2" for="customer">Customer</label>
@@ -13,11 +13,11 @@
 </div>
 <div class="form-group">
     <label class="form-label mt-2" for="rentaldate">Rental Date</label>
-    <input type="text" @bind="_rentalDate" form-control" id="rentaldate" />
+    <input type="date" @bind="_rentalDate" class="form-control" id="rentaldate" />
 </div>
 <div class="form-group">
     <label class="form-label mt-2" for="returndate">Return Date</label>
-    <input type="text" @bind="_returnDate" class="form-control" id="returndate" />
+    <input type="date" @bind="_returnDate" class="form-control" id="returndate" />
 </div>
 
 <Button class="mt-3 btn btn-primary" Type="ButtonType.Button" @onclick="HandleClick">

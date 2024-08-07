@@ -18,7 +18,7 @@ else
     <div class="nav-header">
         <div>
             <form @onsubmit="FilterRentals">
-                <input type="text" @bind="name" class="search-field" placeholder="Name" />
+                <input type="text" @bind="name" class="search-field" placeholder="Search Rentals" />
                 <button type="submit" class="btn btn-dark"><i class="bi bi-search"></i></button>
             </form>
         </div>
@@ -35,6 +35,9 @@ else
             </button>
         </div>
     </div>
+
+    <Modal @ref="modal" />
+    
     <table class="table new-table">
         <thead>
             <tr class="thead-tr">
