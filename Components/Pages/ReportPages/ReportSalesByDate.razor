@@ -3,50 +3,57 @@
 @inject Services.DatabaseService DatabaseService
 
 <h3>Sales By Date</h3>
-@if (selectedDate != DateTime.MinValue)
+@if (selectedDate != DateOnly.MinValue)
 {
-    <h5>Sales on @selectedDate.ToString("yyyy-MM-dd")</h5>
+    <h5>Sales on @selectedDate</h5>
 }
-
 
 <div class="form-group mb-3">
     <label for="dateFilter">Date Filter</label>
-    <input type="date" class="form-control mb-3" id="dateFilter" onchange="@HandleFilterOnChange" />
+    <input type="date" class="form-control mb-3" id="dateFilter" @onchange="HandleFilterOnChange" />
 </div>
 
 <table class="table">
     <thead>
         <tr>
             <td>Rental Id</td>
-            <td>First Name</td>
+            <td>Date</td>
             <td>Last Name</td>
+            <td>First Name</td>
             <td>Equipment</td>
             <td>Rental Date</td>
             <td>Return Date</td>
             <td>Cost</td>
         </tr>
     </thead>
-</table>    
-@if (rentalInformationList.Count > 0)
-{
-    @foreach (Rental rental in rentalInformationList)
-    {
-        <tr>
-            <td>@rental.RentalId</td>
-            <td>@rental.RecordDate.ToString("d")</td>
-            <td>@getCustomerFromLookup(rental.CustomerId).LastName</td>
-            <td>@getCustomerFromLookup(rental.CustomerId).FirstName</td>
-            <td>@getEquipmentFromLookup(rental.EquipmentId).Name</td>
-            <td>@rental.ReturnDate.ToString("d")</td>
-            <td>@rental.ReturnDate.ToString("d")</td>
-            <td>@rental.Cost.ToString("###,###,###.00")</td>
-        </tr>
-    }
-} 
-else 
-{
-    <p>Nothing to Report</p>
-}
+    <tbody>
+        @if (rentalInformationList != null && rentalInformationList.Count > 0)
+        {
+            @foreach (Rental rental in rentalInformationList)
+            {
+                <tr>
+                    <td>@rental.RentalId</td>
+                    <td>@rental.RecordDate.ToString("d")</td>
+                    <td>@getCustomerFromLookup(rental.CustomerId)?.LastName</td>
+                    <td>@getCustomerFromLookup(rental.CustomerId)?.FirstName</td>
+                    <td>@getEquipmentFromLookup(rental.EquipmentId)?.Name</td>
+                    <td>@rental.RentalDate.ToString("d")</td>
+                    <td>@rental.ReturnDate.ToString("d")</td>
+                    <td class="text-end">@rental.Cost.ToString("###,###,###.00")</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8">Nothing to load or still loading.</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <h5 class="mt-3">Total : @Totals.ToString("###,###,###.00")</h5>
+    </tfoot>
+</table>
 <p>@statusMsg</p>
 
 @code {
@@ -54,18 +61,17 @@ else
     private List<Models.RentalEquipment> equipmentLookup = new List<Models.RentalEquipment>();
     private List<Customer> custLookup = new List<Customer>();
     string statusMsg = String.Empty;
-    private DateTime selectedDate;
+    private DateOnly? selectedDate;
+    private double Totals = 0.0;
 
-    private Customer getCustomerFromLookup(int id)
+    private Customer? getCustomerFromLookup(int id)
     {
-        Customer? customer = custLookup.FirstOrDefault(c => c.CustomerId == id);
-        return customer;
+        return custLookup.FirstOrDefault(c => c.CustomerId == id);
     }
 
-    private Models.RentalEquipment getEquipmentFromLookup(int id)
+    private Models.RentalEquipment? getEquipmentFromLookup(int id)
     {
-        Models.RentalEquipment? rentalEquipment = equipmentLookup.FirstOrDefault(e => e.EquipmentId == id);
-        return rentalEquipment;
+        return equipmentLookup.FirstOrDefault(e => e.EquipmentId == id);
     }
 
     protected override async Task OnInitializedAsync()
@@ -73,32 +79,41 @@ else
         try
         {
             await RefreshList();
-        } 
-        catch (Exception e) 
+        }
+        catch (Exception e)
         {
-            statusMsg = "A problem has occured while retrieving data.";
+            statusMsg = "A problem has occurred while retrieving data.";
         }
     }
 
-    protected async Task RefreshList(string filter = "") 
+    protected async Task RefreshList(DateOnly? filter = null)
     {
         statusMsg = String.Empty;
-        rentalInformationList = await DatabaseService.GetRentalInformationAsync(filter);
-        equipmentLookup = await DatabaseService.GetEquipmentAsync();
-        custLookup = await DatabaseService.GetCustomers();
+        try
+        {
+            rentalInformationList = await DatabaseService.GetRentalInformationAsync(filter);
+            equipmentLookup = await DatabaseService.GetEquipmentAsync();
+            custLookup = await DatabaseService.GetCustomers();
+            Totals = rentalInformationList.Sum(r => r.Cost);
+        }
+        catch (Exception e)
+        {
+            statusMsg = "A problem has occurred while retrieving data.";
+        }
     }
 
-    protected void HandleFilterOnChange(ChangeEventArgs e)
+    protected async Task HandleFilterOnChange(ChangeEventArgs e)
     {
         if (DateTime.TryParse(e.Value.ToString(), out var date))
         {
-            selectedDate = date;
-            RefreshList(selectedDate.ToString("yyyy-MM-dd"));
+            selectedDate = DateOnly.FromDateTime(date);
+            await RefreshList(selectedDate);
         }
         else
         {
             // Handle invalid date input
+            await RefreshList();
         }
-        RefreshList();
+        StateHasChanged();  // Ensure the UI updates after data is fetched
     }
 }

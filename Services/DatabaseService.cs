@@ -192,14 +192,14 @@ namespace VillageRMS.Services
         }
 
         // get rental information
-        public async Task<List<Rental>> GetRentalInformationAsync(string filter = "")
+        public async Task<List<Rental>> GetRentalInformationAsync(DateOnly? filter = null)
         {
             List<Rental> rentals = new List<Rental>();
 
-            string query = "SELECT * FROM rental_information ";
-            if (!string.IsNullOrEmpty(filter))
+            string query = "SELECT * FROM `rental_information` ";
+            if (filter.HasValue)
             {
-                query += "WHERE current_date = @date";
+                query += "WHERE `current_date` = @date";
             }
 
             try
@@ -209,10 +209,13 @@ namespace VillageRMS.Services
                     await conn.OpenAsync();
                     using (var cmd = new MySqlCommand(query, conn))
                     {
-                        if (!string.IsNullOrEmpty(filter))
+                        if (filter.HasValue)
                         {
-                            cmd.Parameters.AddWithValue("@date", filter);
+                            cmd.Parameters.AddWithValue("@date", filter.Value.ToString("yyyy-MM-dd"));
                         }
+
+                        string finalQuery = BuildQueryString(cmd);
+                        Console.WriteLine(finalQuery);
 
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
@@ -234,7 +237,19 @@ namespace VillageRMS.Services
             return rentals;
         }
 
+        //for debuggin only
+        private string BuildQueryString(MySqlCommand cmd)
+        {
+            string query = cmd.CommandText;
+            foreach (MySqlParameter param in cmd.Parameters)
+            {
+                query = query.Replace(param.ParameterName, $"'{param.Value}'");
+            }
+            return query;
+        }
     }
+
+    
 }
 
 
