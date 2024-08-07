@@ -157,6 +157,7 @@ else
             };
 
             await modal.ShowAsync<RentalModalAdd>(title: "New Rental", parameters: parameters);
+
         }catch(Exception e)
         {
             testMsg = $"An error occurred: {e.Message}";
