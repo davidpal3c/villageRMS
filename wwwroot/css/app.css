@@ -148,5 +148,10 @@ h2
   
 }
 
+.thead-tr
+{
+    border-bottom:solid 3px #000000;
+}
+
 
 

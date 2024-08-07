@@ -37,7 +37,7 @@ else
     </div>
     <table class="table new-table">
         <thead>
-            <tr>
+            <tr class="thead-tr">
                 <th>ID</th>
                 <th>Date</th>
                 <th>Customer</th>
@@ -158,7 +158,8 @@ else
 
             await modal.ShowAsync<RentalModalAdd>(title: "New Rental", parameters: parameters);
 
-        }catch(Exception e)
+        }
+        catch(Exception e)
         {
             testMsg = $"An error occurred: {e.Message}";
         }
@@ -193,7 +194,8 @@ else
             };
 
             await modal.ShowAsync<UpdateRentalModal>(title: "Update Rental", parameters: parameters);
-        }catch(Exception e)
+        }
+        catch(Exception e)
         {
             testMsg = $"An error occurred: {e.Message}";
         }
