@@ -120,3 +120,20 @@ edit-delete-btn {
     border: 1px solid black;
 }
 
+.new-modal
+{
+    position:fixed;
+    top:0px;
+    bottom:0px;
+    left:0px;
+    right:0px;
+    margin:auto;
+    background-color:#ffffff;
+    z-index:20;
+}
+
+h2
+{
+    font-weight:600;
+}
+

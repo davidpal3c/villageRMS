@@ -1,18 +1,20 @@
-﻿@namespace VillageRMS.Components
-@inject VillageRMS.Services.LoginStateService LoginStateService
-
-<div class="modal @ModalClass" tabindex="-1" role="dialog" style="display:@(Show ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content" style="width: 100%; height: 100%; margin: auto;">
+﻿@using VillageRMS.Exceptions
+<div class="new-modal" tabindex="-1" style="display:@(Visible ? "block" : "none")" aria-hidden="@(!Visible)">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
             <div class="modal-body d-flex flex-column align-items-center justify-content-center" style="height: 100%;">
                 <div class="w-100" style="max-width: 376px;">
-                    <div class="mt-2">
-                        <!-- some space before welcome -->
+                    <div class="text-right mb-4 mt-2 text-end">
+                        <button type="button" class="close ml-auto" @onclick="Close">
+                            <span>&times;</span>
+                        </button>
                     </div>
+                        
                     <div class="text-center mb-4">
                         <h5>Welcome to</h5>
-                        <h2 class="modal-title">Village RMS</h2>
+                        <h2>Village RMS</h2>
                     </div>
+                    
                     <form>
                         <div class="form-group">
                             <label for="username">Username</label>
@@ -23,52 +25,85 @@
                             <input type="password" id="password" @bind="Password" class="form-control" placeholder="Password" />
                         </div>
                         <div class="form-group mt-4">
-                            <button type="button" class="btn btn-primary " style="width: 138px;" @onclick="Login" disabled="@(string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password))">Login</button>
+                            <button type="button" class="btn btn-primary " style="width: 138px;" @onclick="Login" >Login</button>
                         </div>
                         <div class="mt-5">
-                            <!-- some space after login button -->
+                            <p class="text-warning">@statusMsg</p>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
+
 @code {
-    [Parameter] public EventCallback<bool> OnLoginSuccess { get; set; }
+    private bool _visible;
+
+    private string statusMsg = "demo: use admin / password";
+    private string textstyle = "text-success";
+
+    [Parameter]
+    public bool Visible
+    {
+        get => _visible;
+        set
+        {
+            if (_visible != value)
+            {
+                _visible = value;
+                VisibleChanged.InvokeAsync(value);
+            }
+        }
+    }
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnLoginSuccess { get; set; }
 
     private string Username { get; set; }
     private string Password { get; set; }
 
-    private string ModalClass => Show ? "show" : "";
-
-    public bool Show { get; set; }
-
-    public void ShowModal()
+    private void Close()
     {
-        Show = true;
-        StateHasChanged();
-    }
-
-    public void Hide()
-    {
-        Show = false;
-        StateHasChanged();
+        Visible = false;
     }
 
     private async Task Login()
     {
-        // todo: database validation
-        if (Username == "admin" && Password == "password")
+        try
         {
-            LoginStateService.IsLoggedIn = true; // update login state
-            await OnLoginSuccess.InvokeAsync(true);
-            Hide();
+            // temp login logic
+            bool success = !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password);
+            if (success)
+            {
+                // replace with db validation here
+                success = (Username == "admin" && Password == "password");
+                if (success)
+                {
+                    await OnLoginSuccess.InvokeAsync(true);
+                    statusMsg = String.Empty;
+                    Close();
+                }
+            }
+            else
+            {
+                throw new InvalidLoginException("Check username and password");
+            }
         }
-        else
+        catch (InvalidLoginException e)
         {
-            // if invalid login
+            textstyle = "text-danger";
+            statusMsg = e.Message;
+        } catch (Exception e)
+        {
+            textstyle = "text-danger";
+            statusMsg = e.Message;
         }
+
     }
 }

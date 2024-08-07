@@ -6,28 +6,34 @@
 
 Welcome to Village Rental Management System
 
-<LoginModal @ref="loginModal" OnLoginSuccess="HandleLoginSuccess" />
+@if (!LoginStateService.IsLoggedIn)
+{
+    <p class="text-warning m-1">@notLoggedInMsg</p>
+}
 
 @code {
-    private LoginModal loginModal;
-    bool showLoginModal = false;
     private bool isInitialized = false;
+    private string notLoggedInMsg = "Please login.";
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
+        try
         {
-            loginModal.ShowModal();
-            isInitialized = true;
-            StateHasChanged();
+            if (!LoginStateService.IsLoggedIn)
+            {
+                //Todo: some action if not logged in
+            }
+            LoginStateService.OnChange += StateHasChanged;
+        } catch (Exception e)
+        {
+            
         }
+
     }
 
-    private void HandleLoginSuccess(bool success)
+    public void Dispose()
     {
-        if (success)
-        {
-            showLoginModal = false;
-        }
+        LoginStateService.OnChange -= StateHasChanged;
     }
+
 }

@@ -176,6 +176,7 @@ namespace VillageRMS.Services
             return categoryList;
         }
 
+
         public static async Task<RentalCategory> GetCategoryByIdAsync(int categoryId)
         {
             RentalCategory category = null;
@@ -235,7 +236,7 @@ namespace VillageRMS.Services
             return equipmentList;
         }
 
-
+                           
         public async Task AddNewEquipment(List<object> equipmentData)
         {
             if (equipmentData == null || equipmentData.Count != 4)
@@ -259,6 +260,51 @@ namespace VillageRMS.Services
             }
         }
 
+                    
+        public async Task<List<Rental>> GetRentals()
+        {
+            var rentalList = new List<Rental>();
+            
+                using (MySqlCommand cmd = new MySqlCommand("SELECT * FROM rental_information", conn))
+                {
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var rental = _custMapper.MapFromReaderRental(reader);
+                            rentalList.Add(rental);
+                        }
+                    }
+                }
+            }
+
+            return rentalList;
+        }
+
+        public async Task AddRental(List<string> rentalData)
+        {
+            if (rentalData == null || rentalData.Count != 4)
+                throw new ArgumentException("Invalid rental data");
+
+            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string commandString = "INSERT INTO rental_information (current_date, customer_id, equipment_id, rental_date, return_date) VALUES (@CurrentDate, @CustomerId, @EquipmentId, @RentalDate, @ReturnDate)";
+
+                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurrentDate", rentalData[0]);
+                    cmd.Parameters.AddWithValue("@CustomerId", rentalData[1]);
+                    cmd.Parameters.AddWithValue("@EquipmentId", rentalData[2]);
+                    cmd.Parameters.AddWithValue("@RentalDate", rentalData[3]);
+                    cmd.Parameters.AddWithValue("@ReturnDate", rentalData[4]);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
 
         public async Task UpdateEquipment(RentalEquipment updateEquipment)
         {
@@ -275,6 +321,28 @@ namespace VillageRMS.Services
                     cmd.Parameters.AddWithValue("@Description", updateEquipment.Description);
                     cmd.Parameters.AddWithValue("@DailyCost", updateEquipment.Daily_rental_cost);
                     cmd.Parameters.AddWithValue("@EquipmentId", updateEquipment.EquipmentId);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+
+        public async Task UpdateRental(Rental rental)
+        {
+            using (var conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string commandString = "UPDATE rental_information SET current_date = @CurrentDate, customer_id = @CustomerId, equipment_id = @EquipmentId, rental_date = @RentalDate, return_date = @ReturnDate WHERE rental_id = @RentalId";
+
+                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CurrentDate", rental.CurrentDate);
+                    cmd.Parameters.AddWithValue("@CustomerId", rental.CustomerId);
+                    cmd.Parameters.AddWithValue("@EquipmentId", rental.EquipmentId);
+                    cmd.Parameters.AddWithValue("@RentalDate", rental.RentalDate);
+                    cmd.Parameters.AddWithValue("@ReturnDate", rental.ReturnDate);
 
                     await cmd.ExecuteNonQueryAsync();
                 }
