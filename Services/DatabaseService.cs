@@ -260,11 +260,15 @@ namespace VillageRMS.Services
             }
         }
 
-                    
+
         public async Task<List<Rental>> GetRentals()
         {
             var rentalList = new List<Rental>();
-            
+
+            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
                 using (MySqlCommand cmd = new MySqlCommand("SELECT * FROM rental_information", conn))
                 {
                     using (var reader = await cmd.ExecuteReaderAsync())
@@ -280,6 +284,7 @@ namespace VillageRMS.Services
 
             return rentalList;
         }
+
 
         public async Task AddRental(List<string> rentalData)
         {
@@ -327,7 +332,6 @@ namespace VillageRMS.Services
             }
         }
 
-
         public async Task UpdateRental(Rental rental)
         {
             using (var conn = new MySqlConnection(_connectionString))
@@ -343,10 +347,12 @@ namespace VillageRMS.Services
                     cmd.Parameters.AddWithValue("@EquipmentId", rental.EquipmentId);
                     cmd.Parameters.AddWithValue("@RentalDate", rental.RentalDate);
                     cmd.Parameters.AddWithValue("@ReturnDate", rental.ReturnDate);
+                    cmd.Parameters.AddWithValue("@RentalId", rental.RentalId);
 
                     await cmd.ExecuteNonQueryAsync();
                 }
             }
+                        
         }
 
     }
