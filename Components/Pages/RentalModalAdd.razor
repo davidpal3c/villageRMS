@@ -1,22 +1,22 @@
 ﻿<!-- Add New Rental -->
 <div class="form-group">
-    <label class="form-label mt-2" for="fn">Current Date</label>
+    <label class="form-label mt-2" for="currentdate">Current Date</label>
     <input type="text" @bind="_currentDate" class="form-control" id="currentdate" />
 </div>
 <div class="form-group">
-    <label class="form-label mt-2" for="ln">Customer</label>
+    <label class="form-label mt-2" for="customer">Customer</label>
     <input type="number" @bind="_customerId" class="form-control" id="customer" />
 </div>
 <div class="form-group">
-    <label class="form-label mt-2" for="phone">Equipment</label>
+    <label class="form-label mt-2" for="equipment">Equipment</label>
     <input type="number" @bind="_equipmentId" class="form-control" id="equipment" />
 </div>
 <div class="form-group">
-    <label class="form-label mt-2" for="email">Rental Date</label>
-    <input type="text" @bind="_rentalDate"form-control" id="rentaldate" />
+    <label class="form-label mt-2" for="rentaldate">Rental Date</label>
+    <input type="text" @bind="_rentalDate" form-control" id="rentaldate" />
 </div>
 <div class="form-group">
-    <label class="form-label mt-2" for="email">Return Date</label>
+    <label class="form-label mt-2" for="returndate">Return Date</label>
     <input type="text" @bind="_returnDate" class="form-control" id="returndate" />
 </div>
 
@@ -27,32 +27,30 @@
 
 
 @code {
-    
-    [Parameter] public EventCallback<List<string>> OnClickCallback { get; set; }
 
-    private string? _currentDate;
+    [Parameter] public EventCallback<List<object>> OnClickCallback { get; set; }
+
+    private DateTime? _currentDate;
     private int? _customerId;
     private int? _equipmentId;
-    private string? _rentalDate;
-    private string? _returnDate;
-    private List<string> returnVal { get; set; } = new List<string>();
+    private DateTime? _rentalDate;
+    private DateTime? _returnDate;
+    private List<object> returnVal { get; set; } = new List<object>();
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
     }
-    
+
     private async Task HandleClick()
     {
         returnVal.Clear();
-        /*
-        if (!string.IsNullOrEmpty(_currentDate)) returnVal.Add(_currentDate);
-        if (!int.IsNullOrEmpty(_customerId)) returnVal.Add(_customerId);        
-        if (!int.IsNullOrEmpty(_equipmentId)) returnVal.Add(_equipmentId);
-        if (!string.IsNullOrEmpty(_rentalDate)) returnVal.Add(_rentalDate);
-        if (!string.IsNullOrEmpty(_returnDate)) returnVal.Add(_returnDate);
-        */
+        if (_currentDate != null) returnVal.Add(_currentDate);
+        if (_customerId != null) returnVal.Add(_customerId);
+        if (_equipmentId != null) returnVal.Add(_equipmentId);
+        if (_rentalDate != null) returnVal.Add(_rentalDate);
+        if (_returnDate != null) returnVal.Add(_returnDate);
+
         await OnClickCallback.InvokeAsync(returnVal);
     }
-    
 }

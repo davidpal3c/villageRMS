@@ -69,9 +69,13 @@ h1:focus {
     display: none;
 }
 
-.bii
+.bii-item
 {
-    top:-13px !important;
+    padding-inline:15px !important;
+    display:flex;
+    flex-flow:row nowrap;
+    align-items:center;
+
 }
 
 @supports (-webkit-touch-callout: none) {
@@ -127,6 +131,11 @@ h1:focus {
     margin:auto;
     background-color:#ffffff;
     z-index:20;
+}
+
+.new-table
+{
+    width:100%;
 }
 
 h2
