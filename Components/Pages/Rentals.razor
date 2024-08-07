@@ -35,7 +35,7 @@ else
             </button>
         </div>
     </div>
-    <table class="table">
+    <table class="table new-table">
         <thead>
             <tr>
                 <th>ID</th>
@@ -119,7 +119,7 @@ else
             if (!string.IsNullOrEmpty(name) &&
                 !(rental.FirstName.Contains(name, StringComparison.OrdinalIgnoreCase) ||
                   rental.LastName.Contains(name, StringComparison.OrdinalIgnoreCase)))
-            {
+                {
                 match = false;
             }
             */
@@ -149,16 +149,22 @@ else
     //AddModal start
     private async Task ShowRentalAddModal()
     {
-        var parameters = new Dictionary<string, object>
+        try
         {
-            { "OnClickCallback", EventCallback.Factory.Create<List<string>>(this, TestSuccessCallbackAdd) }
-        };
+            var parameters = new Dictionary<string, object>
+            {
+                { "OnClickCallback", EventCallback.Factory.Create<List<object>>(this, TestSuccessCallbackAdd) }
+            };
 
-        await modal.ShowAsync<CustomerModalAdd>(title: "New Rental", parameters: parameters);
+            await modal.ShowAsync<RentalModalAdd>(title: "New Rental", parameters: parameters);
+        }catch(Exception e)
+        {
+            testMsg = $"An error occurred: {e.Message}";
+        }
     }
 
 
-    private async Task TestSuccessCallbackAdd(List<string> rentalData)
+    private async Task TestSuccessCallbackAdd(List<object> rentalData)
     {
         try
         {
@@ -177,13 +183,19 @@ else
 
     private async Task ShowRentalUpdateModal(Rental rental)
     {
-        var parameters = new Dictionary<string, object>
+        try
         {
-            { "Customer", rental },
-            { "OnClickCallback", EventCallback.Factory.Create<Rental>(this, TestSuccessCallbackUpdate)}
-        };
+            var parameters = new Dictionary<string, object>
+            {
+                { "Rental", rental },
+                { "OnClickCallback", EventCallback.Factory.Create<Rental>(this, TestSuccessCallbackUpdate)}
+            };
 
-        await modal.ShowAsync<CustomerModalUpdate>(title: "Update Customer", parameters: parameters);
+            await modal.ShowAsync<UpdateRentalModal>(title: "Update Rental", parameters: parameters);
+        }catch(Exception e)
+        {
+            testMsg = $"An error occurred: {e.Message}";
+        }
     }
 
 

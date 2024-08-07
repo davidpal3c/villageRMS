@@ -5,9 +5,9 @@
             <div class="modal-body d-flex flex-column align-items-center justify-content-center" style="height: 100%;">
                 <div class="w-100" style="max-width: 376px;">
                     <div class="text-right mb-4 mt-2 text-end">
-                        <button type="button" class="close ml-auto" @onclick="Close">
+                        <!--<button type="button" class="close ml-auto" onclick="Close">
                             <span>&times;</span>
-                        </button>
+                        </button>-->
                     </div>
                         
                     <div class="text-center mb-4">
@@ -25,7 +25,7 @@
                             <input type="password" id="password" @bind="Password" class="form-control" placeholder="Password" />
                         </div>
                         <div class="form-group mt-4">
-                            <button type="button" class="btn btn-primary " style="width: 138px;" @onclick="Login" >Login</button>
+                            <button type="button" class="btn btn-primary " style="width: 138px;" @onclick="Login"  >Login</button>
                         </div>
                         <div class="mt-5">
                             <p class="text-warning">@statusMsg</p>

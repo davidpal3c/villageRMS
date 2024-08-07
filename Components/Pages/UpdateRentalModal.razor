@@ -1,4 +1,5 @@
-﻿<!-- Add New Rental -->
+﻿<h3>UpdateRentalModal</h3>
+
 <div class="form-group">
     <label class="form-label mt-2" for="currentdate">Current Date</label>
     <input type="text" @bind="_currentDate" class="form-control" id="currentdate" />
@@ -25,16 +26,16 @@
 </Button>
 
 
-
 @code {
-    [Parameter] public EventCallback<List<Object>> OnClickCallback { get; set; }
+
+    [Parameter] public EventCallback<List<object>> OnClickCallback { get; set; }
 
     private DateTime? _currentDate;
     private int? _customerId;
     private int? _equipmentId;
     private DateTime? _rentalDate;
     private DateTime? _returnDate;
-    private List<Object> returnVal { get; set; } = new List<Object>();
+    private List<object> returnVal { get; set; } = new List<object>();
 
     protected override void OnInitialized()
     {
@@ -45,7 +46,7 @@
     {
         returnVal.Clear();
         if (_currentDate != null) returnVal.Add(_currentDate);
-        if (_customerId != null) returnVal.Add(_customerId); 
+        if (_customerId != null) returnVal.Add(_customerId);
         if (_equipmentId != null) returnVal.Add(_equipmentId);
         if (_rentalDate != null) returnVal.Add(_rentalDate);
         if (_returnDate != null) returnVal.Add(_returnDate);
