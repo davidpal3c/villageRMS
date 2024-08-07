@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Reflection.Metadata.Ecma335;
 
 namespace VillageRMS.Services
 {
@@ -12,11 +14,15 @@ namespace VillageRMS.Services
     {
         private readonly string _connectionString;
         private readonly CustomerMapper _custMapper;
+        private readonly EquipmentMapper _equipmentMapper;
+        private readonly RentalInformationMapper _rentalInformationMapper;
 
         public DatabaseService(string connectionString)
         {
             _connectionString = connectionString;
             _custMapper = new CustomerMapper();
+            _equipmentMapper = new EquipmentMapper();
+            _rentalInformationMapper = new RentalInformationMapper();
         }
 
         //for testing only
@@ -151,6 +157,81 @@ namespace VillageRMS.Services
             }
 
             return categoryList;
+        }
+
+        // get equipment
+        public async Task<List<RentalEquipment>> GetEquipmentAsync()
+        {
+            List<RentalEquipment> equipmentList = new List<RentalEquipment>();
+
+            try
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+
+                    using (var cmd = new MySqlCommand("SELECT * FROM rental_equipment", conn))
+                    {
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var equipment = _equipmentMapper.MapFromReaderRentalEquipment(reader);
+                                equipmentList.Add(equipment);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e)
+            {
+
+            }
+
+
+            return equipmentList;
+        }
+
+        // get rental information
+        public async Task<List<Rental>> GetRentalInformationAsync(string filter = "")
+        {
+            List<Rental> rentals = new List<Rental>();
+
+            string query = "SELECT * FROM rental_information ";
+            if (!string.IsNullOrEmpty(filter))
+            {
+                query += "WHERE current_date = @date";
+            }
+
+            try
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+                    using (var cmd = new MySqlCommand(query, conn))
+                    {
+                        if (!string.IsNullOrEmpty(filter))
+                        {
+                            cmd.Parameters.AddWithValue("@date", filter);
+                        }
+
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var rentalinfo = _rentalInformationMapper.MapFromReaderRentalInformation(reader);
+                                rentals.Add(rentalinfo);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                //Console.WriteLine($"Error: {e.Message}");
+                //throw;
+            }
+
+            return rentals;
         }
 
     }

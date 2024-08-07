@@ -1,0 +1,104 @@
+﻿@page "/ReportSalesByDate"
+@using Models
+@inject Services.DatabaseService DatabaseService
+
+<h3>Sales By Date</h3>
+@if (selectedDate != DateTime.MinValue)
+{
+    <h5>Sales on @selectedDate.ToString("yyyy-MM-dd")</h5>
+}
+
+
+<div class="form-group mb-3">
+    <label for="dateFilter">Date Filter</label>
+    <input type="date" class="form-control mb-3" id="dateFilter" onchange="@HandleFilterOnChange" />
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <td>Rental Id</td>
+            <td>First Name</td>
+            <td>Last Name</td>
+            <td>Equipment</td>
+            <td>Rental Date</td>
+            <td>Return Date</td>
+            <td>Cost</td>
+        </tr>
+    </thead>
+</table>    
+@if (rentalInformationList.Count > 0)
+{
+    @foreach (Rental rental in rentalInformationList)
+    {
+        <tr>
+            <td>@rental.RentalId</td>
+            <td>@rental.RecordDate.ToString("d")</td>
+            <td>@getCustomerFromLookup(rental.CustomerId).LastName</td>
+            <td>@getCustomerFromLookup(rental.CustomerId).FirstName</td>
+            <td>@getEquipmentFromLookup(rental.EquipmentId).Name</td>
+            <td>@rental.ReturnDate.ToString("d")</td>
+            <td>@rental.ReturnDate.ToString("d")</td>
+            <td>@rental.Cost.ToString("###,###,###.00")</td>
+        </tr>
+    }
+} 
+else 
+{
+    <p>Nothing to Report</p>
+}
+<p>@statusMsg</p>
+
+@code {
+    private List<Rental> rentalInformationList = new List<Rental>();
+    private List<Models.RentalEquipment> equipmentLookup = new List<Models.RentalEquipment>();
+    private List<Customer> custLookup = new List<Customer>();
+    string statusMsg = String.Empty;
+    private DateTime selectedDate;
+
+    private Customer getCustomerFromLookup(int id)
+    {
+        Customer? customer = custLookup.FirstOrDefault(c => c.CustomerId == id);
+        return customer;
+    }
+
+    private Models.RentalEquipment getEquipmentFromLookup(int id)
+    {
+        Models.RentalEquipment? rentalEquipment = equipmentLookup.FirstOrDefault(e => e.EquipmentId == id);
+        return rentalEquipment;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await RefreshList();
+        } 
+        catch (Exception e) 
+        {
+            statusMsg = "A problem has occured while retrieving data.";
+        }
+    }
+
+    protected async Task RefreshList(string filter = "") 
+    {
+        statusMsg = String.Empty;
+        rentalInformationList = await DatabaseService.GetRentalInformationAsync(filter);
+        equipmentLookup = await DatabaseService.GetEquipmentAsync();
+        custLookup = await DatabaseService.GetCustomers();
+    }
+
+    protected void HandleFilterOnChange(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value.ToString(), out var date))
+        {
+            selectedDate = date;
+            RefreshList(selectedDate.ToString("yyyy-MM-dd"));
+        }
+        else
+        {
+            // Handle invalid date input
+        }
+        RefreshList();
+    }
+}

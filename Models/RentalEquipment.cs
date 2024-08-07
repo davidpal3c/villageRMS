@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VillageRMS.Models
 {
-    internal class RentalEquipment
+    public class RentalEquipment
     {
         private int _equipmentId;
         private int _category;
