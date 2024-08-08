@@ -230,7 +230,8 @@ else
 
         var parameters = new Dictionary<string, object>
         {
-            { "OnClickCallback", EventCallback.Factory.Create<List<object>>(this, TestSuccessCallbackAdd) }
+            { "OnClickCallback", EventCallback.Factory.Create<List<object>>(this, TestSuccessCallbackAdd) },
+            { "CategoryLookup", categoryLookup}
         };
 
         await modal.ShowAsync<EquipmentModalAdd>(title: "New Equipment", parameters: parameters);
