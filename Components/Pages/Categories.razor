@@ -85,6 +85,8 @@
 
 @code {
     private List<RentalCategory> categoryList;
+    private Modal modal = default!;
+    private bool showDeleteConfirmation = false;
     string msg = String.Empty;
     string? testMsg;
     private List<RentalCategory>? filteredData = new List<RentalCategory>();
@@ -150,6 +152,113 @@
 
         }
         filteredData = result;
+    }
+
+
+    private async Task ShowCategoryAddModal()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnClickCallback", EventCallback.Factory.Create<List<string>>(this, TestSuccessCallbackAdd) }
+        };
+
+        await modal.ShowAsync<CustomerModalAdd>(title: "New Category", parameters: parameters);
+    }
+
+
+    private async Task TestSuccessCallbackAdd(List<string> newCatData)
+    {
+        try
+        {
+            testMsg = $"new category data: {newCatData[0]} {newCatData[1]} {newCatData[2]} {newCatData[3]}";
+            await DatabaseService.AddNewCustomer(newCatData);
+            await RefreshList();
+            await modal.HideAsync();
+        }
+        catch (Exception e)
+        {
+            testMsg = $"An error occurred: {e.Message}";
+        }
+    }
+
+
+
+    private async Task ShowCategoryUpdateModal(RentalCategory category)
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "Customer", category },
+            { "OnClickCallback", EventCallback.Factory.Create<RentalCategory>(this, TestSuccessCallbackUpdate)}
+        };
+
+        await modal.ShowAsync<CategoryModalUpdate>(title: "Update Customer", parameters: parameters);
+    }
+
+
+
+    private async Task TestSuccessCallbackUpdate(RentalCategory updatedCategory)
+    {
+        try
+        {
+            testMsg = $"CustomerID: {updatedCategory.CustomerId}, First name: {updatedCategory.FirstName}, Last Name: {updatedCategory.LastName}, updated successfully";
+            await DatabaseService.UpdateCustomer(updatedCategory);
+            await RefreshList();
+            await modal.HideAsync();
+        }
+        catch (Exception e)
+        {
+            testMsg = $"An error occurred: {e.Message}";
+        }
+    }
+
+
+
+    private async Task ShowDeleteConfirmationModal(RentalCategory category)
+    {
+        showDeleteConfirmation = true;
+
+        var parameters = new Dictionary<string, object>
+        {
+            { "Category", category },
+            { "OnClickCallback", EventCallback.Factory.Create<(RentalCategory, bool)>(this, ConfirmCallbackDelete) }
+        };
+
+        await modal.ShowAsync<CategoryModalDelete>(title: "Delete Customer", parameters: parameters);
+    }
+
+
+
+    private async Task ConfirmCallbackDelete((RentalCategory category, bool confirmed) args)
+    {
+        var (category, confirmed) = args;
+
+        try
+        {
+
+            if (confirmed)
+            {
+                await DatabaseService.DeleteCategory(category);
+                testMsg = $"CategoryID: {category.CategoryId}, Category Description: {category.CategoryDescription}, deleted successfully";
+                await RefreshList();
+            }
+            else
+            {
+                //customer = null;
+                testMsg = "Customer deletion was canceled.";
+                await RefreshList();
+            }
+
+            await modal.HideAsync();
+
+        }
+        catch (Exception e)
+        {
+            testMsg = $"An error occurred: {e.Message}";
+        }
+        finally
+        {
+            showDeleteConfirmation = false;
+        }
     }
 
 

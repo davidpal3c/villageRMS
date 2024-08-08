@@ -209,6 +209,43 @@ namespace VillageRMS.Services
         }
 
 
+        public async Task UpdateCategory(RentalCategory category)
+        {
+            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string commandString = "UPDATE category_list SET category_description = @CategoryDescription WHERE category_id = @CategoryId";
+
+                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CategoryDescription", category.CategoryDescription);
+                  
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+        public async Task DeleteCategory(RentalCategory category)
+        {
+
+            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string commandString = "DELETE FROM category_list WHERE category_id = @CategoryId";
+
+                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CategoryId", category.CategoryId);
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+
+        }
+
+
         public static async Task<List<RentalEquipment>> GetRentalEquipmentAsync()
         {
             List<RentalEquipment> equipmentList = new List<RentalEquipment>();
