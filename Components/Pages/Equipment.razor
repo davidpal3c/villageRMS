@@ -230,7 +230,8 @@ else
 
         var parameters = new Dictionary<string, object>
         {
-            { "OnClickCallback", EventCallback.Factory.Create<List<object>>(this, TestSuccessCallbackAdd) }
+            { "OnClickCallback", EventCallback.Factory.Create<List<object>>(this, TestSuccessCallbackAdd) },
+            { "CategoryLookup", categoryLookup}
         };
 
         await modal.ShowAsync<EquipmentModalAdd>(title: "New Equipment", parameters: parameters);
@@ -258,7 +259,8 @@ else
         var parameters = new Dictionary<string, object>
         {
             { "Equipment", equipment},
-            { "OnClickCallback", EventCallback.Factory.Create<RentalEquipment>(this, TestSuccessCallbackUpdate)}
+            { "OnClickCallback", EventCallback.Factory.Create<RentalEquipment>(this, TestSuccessCallbackUpdate)},
+            { "CategoryLookup", categoryLookup}
         };
 
         await modal.ShowAsync<EquipmentModalUpdate>(title: "Update Customer", parameters: parameters);
