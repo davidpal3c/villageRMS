@@ -76,7 +76,6 @@ else
 
 @code {
     private List<Rental> rentals_list = new List<Rental>();
-    //for modal
     private Modal modal = default!;
     private bool showDeleteConfirmation = false;
     private string? testMsg;
@@ -94,7 +93,7 @@ else
     {
         if (DatabaseService.isSuccessfulConnection())
         {
-            msg = "Connection - OK!";
+            msg = "";
         }
         else
         {

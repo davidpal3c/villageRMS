@@ -374,16 +374,16 @@ namespace VillageRMS.Services
             using (var conn = new MySqlConnection(_connectionString))
             {
                 await conn.OpenAsync();
+                
 
-                string commandString = "UPDATE rental_information SET current_date = @CurrentDate, customer_id = @CustomerId, equipment_id = @EquipmentId, rental_date = @RentalDate, return_date = @ReturnDate WHERE rental_id = @RentalId";
+                string commandString = "UPDATE rental_information SET  customer_id = @CustomerId, equipment_id = @EquipmentId, rental_date = @RentalDate, return_date = @ReturnDate WHERE rental_id = @RentalId";
 
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {
-                    cmd.Parameters.AddWithValue("@CurrentDate", rental.CurrentDate);
                     cmd.Parameters.AddWithValue("@CustomerId", rental.CustomerId);
                     cmd.Parameters.AddWithValue("@EquipmentId", rental.EquipmentId);
-                    cmd.Parameters.AddWithValue("@RentalDate", rental.RentalDate);
-                    cmd.Parameters.AddWithValue("@ReturnDate", rental.ReturnDate);
+                    cmd.Parameters.AddWithValue("@RentalDate", rental.RentalDate.ToString("yyyy-MM-dd hh:mm:ss"));
+                    cmd.Parameters.AddWithValue("@ReturnDate", rental.ReturnDate.ToString("yyyy-MM-dd hh:mm:ss"));
                     cmd.Parameters.AddWithValue("@RentalId", rental.RentalId);
 
                     await cmd.ExecuteNonQueryAsync();
