@@ -1,0 +1,110 @@
+﻿@page "/loadfromexcel"
+
+@using OfficeOpenXml
+
+<h3>Load From Excel</h3>
+<div class="nav-header">
+    <div>
+        <form @onsubmit="LoadData">
+            <label for="btnLoad"></label>
+            <button type="submit" class="btn btn-primary" id="btnLoad">Load From Excel</button>
+        </form>
+    </div>
+</div>
+<p>@statusMsg</p>
+@foreach (string l in logs)
+{
+    <p>@l</p>
+}
+
+@code {
+    private string statusMsg;
+    private readonly string _excelPath = "../../../../../Resources/DataSource/data-samples.xlsx"; // Your original path
+    List<string> logs = new List<string>();
+
+    Dictionary<string, object> markers = new Dictionary<string, object>
+    {
+        {"Category", new { cols = 2, indicator = "category id" } },
+        {"Equipment", new { cols = 5, indicator = "equipment_id" } },
+        {"Customer", new { cols = 5, indicator = "customer_id" } },
+        {"Rental", new { cols = 6, indicator = "rental_id" } }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+        
+    }
+
+    private async Task LoadData()
+    {
+        string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        string relativePath = Path.Combine(baseDirectory, _excelPath);
+        string fullPath = Path.GetFullPath(relativePath);
+       
+
+        if (!File.Exists(fullPath))
+        {
+            statusMsg = "File not found.";
+            StateHasChanged();
+            return;
+        }
+
+        try
+        {
+            // set the license context to NonCommercial for non-commercial use
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            using (var package = new OfficeOpenXml.ExcelPackage(new FileInfo(fullPath)))
+            {
+                var workbook = package.Workbook;
+                var worksheet = workbook.Worksheets[0]; // only 1 worksheet
+
+                // worksheet dimensions
+                var rowCount = worksheet.Dimension.Rows;
+                var colCount = worksheet.Dimension.Columns;
+
+                for (int row = 1; row <= rowCount; row++)
+                {
+                    //for (int col = 1; col <= colCount; col++)
+                    //{
+                    //var cellValue = worksheet.Cells[row, col].Text;
+                    // Do something with cellValue
+                    //}
+                    var categoryValue = markers["Category"];
+                    var indicatorProperty = categoryValue.GetType().GetProperty("indicator");
+                    var categoryIndicator = (string)indicatorProperty.GetValue(categoryValue);
+
+                    if (worksheet.Cells[row, 1].Text == categoryIndicator.ToString())
+                    {
+                        logs.Add($"{categoryIndicator} at [{row},{1}]");
+                    }
+
+                    if (worksheet.Cells[row, 1].Text == "equipment_id")
+                    {
+                        logs.Add($"[{row},{1}]");
+                    }
+
+                    if (worksheet.Cells[row, 1].Text == "customer_id")
+                    {
+                        logs.Add($"[{row},{1}]");
+                    }
+
+                    if (worksheet.Cells[row, 1].Text == "rental_id")
+                    {
+                        logs.Add($"[{row},{1}]");
+                    }
+                }
+
+                //statusMsg = worksheet.Cells[1, 1].Text;
+                //statusMsg = "Data loaded successfully.";
+            }
+        }
+        catch (Exception e)
+        {
+            statusMsg = e.Message;
+        }
+
+        StateHasChanged();
+    }
+}
