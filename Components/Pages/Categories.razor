@@ -163,7 +163,7 @@
             { "OnClickCallback", EventCallback.Factory.Create<List<string>>(this, TestSuccessCallbackAdd) }
         };
 
-        await modal.ShowAsync<CustomerModalAdd>(title: "New Category", parameters: parameters);
+        await modal.ShowAsync<CategoryModalAdd>(title: "New Category", parameters: parameters);
     }
 
 

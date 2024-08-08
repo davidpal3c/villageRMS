@@ -336,11 +336,11 @@ namespace VillageRMS.Services
 
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {
-                    cmd.Parameters.AddWithValue("@CurrentDate", rentalData[0]);
+                    cmd.Parameters.AddWithValue("@CurrentDate", rentalData[0].ToString());
                     cmd.Parameters.AddWithValue("@CustomerId", rentalData[1]);
                     cmd.Parameters.AddWithValue("@EquipmentId", rentalData[2]);
-                    cmd.Parameters.AddWithValue("@RentalDate", rentalData[3]);
-                    cmd.Parameters.AddWithValue("@ReturnDate", rentalData[4]);
+                    cmd.Parameters.AddWithValue("@RentalDate", rentalData[3].ToString());
+                    cmd.Parameters.AddWithValue("@ReturnDate", rentalData[4].ToString());
 
                     await cmd.ExecuteNonQueryAsync();
                 }

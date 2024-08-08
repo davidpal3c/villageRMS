@@ -58,7 +58,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Remove="Components\Pages\CategoryModalAdd.razor" />
       <Content Remove="Components\Pages\CustomerModalAdd - Copy %282%29.razor" />
     </ItemGroup>
 
@@ -77,10 +76,6 @@
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Components\Pages\CategoryModalAdd.razor" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Include="Components\Pages\CategoryModalAdd.razor" />
     </ItemGroup>
 
 </Project>
