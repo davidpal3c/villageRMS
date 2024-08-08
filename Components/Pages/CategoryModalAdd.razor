@@ -1,6 +1,11 @@
 ﻿<!-- Add New Category -->
 
 <div class="form-group">
+    <label class="form-label mt-2" for="cid">Category Id</label>
+    <input type="number" @bind="_categoryId" class="form-control" id="cid" />
+</div>
+
+<div class="form-group">
     <label class="form-label mt-2" for="cd">Category Description</label>
     <input type="text" @bind="_categoryDescription" class="form-control" id="cd" />
 </div>
@@ -14,10 +19,11 @@
 
 @code {
 
-    [Parameter] public EventCallback<List<string>> OnClickCallback { get; set; }
+    [Parameter] public EventCallback<List<object>> OnClickCallback { get; set; }
 
     private string? _categoryDescription;
-    private List<string> returnVal { get; set; } = new List<string>();
+    private int? _categoryId;
+    private List<object> returnVal { get; set; } = new List<object>();
 
     protected override void OnInitialized()
     {
@@ -27,7 +33,9 @@
     private async Task HandleClick()
     {
         returnVal.Clear();
+        if (_categoryId != null) returnVal.Add(_categoryId);
         if (!string.IsNullOrEmpty(_categoryDescription)) returnVal.Add(_categoryDescription);
+        
 
 
         await OnClickCallback.InvokeAsync(returnVal);

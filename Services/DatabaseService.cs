@@ -208,6 +208,28 @@ namespace VillageRMS.Services
             return category;
         }
 
+        public async Task AddCategory(List<object> catData)
+        {
+            if (catData == null)
+                throw new ArgumentException("Invalid category data");
+
+            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string commandString = "INSERT INTO category_list (category_id, category_description) VALUES (@CategoryId, @CategoryDescription)";
+
+                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                {
+                    cmd.Parameters.AddWithValue("@CategoryId", catData[0]);
+                    cmd.Parameters.AddWithValue("@CategoryDescription", catData[1]);
+                 
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
 
         public async Task UpdateCategory(RentalCategory category)
         {

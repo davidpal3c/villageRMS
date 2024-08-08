@@ -135,7 +135,7 @@
 
         string int_trimmed = enteredCategory.Trim();        
         bool isInteger = int.TryParse(int_trimmed, out int enteredInt);
-                
+
 
         foreach (Models.RentalCategory category in categoryList)
         {
@@ -158,21 +158,30 @@
 
     private async Task ShowCategoryAddModal()
     {
-        var parameters = new Dictionary<string, object>
+        try
         {
-            { "OnClickCallback", EventCallback.Factory.Create<List<string>>(this, TestSuccessCallbackAdd) }
-        };
 
-        await modal.ShowAsync<CategoryModalAdd>(title: "New Category", parameters: parameters);
+
+            var parameters = new Dictionary<string, object>
+            {
+            { "OnClickCallback", EventCallback.Factory.Create<List<object>>(this, TestSuccessCallbackAdd) }
+            };
+
+            await modal.ShowAsync<CategoryModalAdd>(title: "New Category", parameters: parameters);
+        }
+        catch(Exception e)
+        {
+            testMsg = $"An error occurred: {e.Message}";
+        }
     }
 
 
-    private async Task TestSuccessCallbackAdd(List<string> newCatData)
+    private async Task TestSuccessCallbackAdd(List<object> newCatData)
     {
         try
         {
-            testMsg = $"new category data: {newCatData[0]} {newCatData[1]} {newCatData[2]} {newCatData[3]}";
-            await DatabaseService.AddNewCustomer(newCatData);
+            testMsg = $"new category data: {newCatData[0]}";
+            await DatabaseService.AddCategory(newCatData);
             await RefreshList();
             await modal.HideAsync();
         }
