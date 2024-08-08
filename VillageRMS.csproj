@@ -59,6 +59,7 @@
 
     <ItemGroup>
       <Content Remove="Components\Pages\CustomerModalAdd - Copy %282%29.razor" />
+      <Content Remove="Components\Pages\ReportPages\ReportSalesByCustomer.razor" />
     </ItemGroup>
 
     <ItemGroup>
@@ -68,6 +69,18 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
         <PackageReference Include="MySqlConnector" Version="2.3.7" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Components\Pages\ReportPages\ReportSalesByCustomer.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Components\Pages\ReportPages\ReportSalesByCustomer.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="Components\Pages\ReportPages\ReportSalesByCustomer.razor" />
     </ItemGroup>
 
 </Project>

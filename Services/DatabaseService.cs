@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Reflection.Metadata.Ecma335;
+using Microsoft.Maui.Controls;
 
 namespace VillageRMS.Services
 {
@@ -295,7 +296,7 @@ namespace VillageRMS.Services
                         }
 
                         string finalQuery = BuildQueryString(cmd);
-                        Console.WriteLine(finalQuery);
+                        //Console.WriteLine(finalQuery);
 
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
@@ -317,8 +318,52 @@ namespace VillageRMS.Services
             return rentals;
         }
 
-        //for debuggin only
-        private string BuildQueryString(MySqlCommand cmd)
+        public async Task<List<Rental>> GetRentalInformationAsync(int? customerId)
+        {
+            List<Rental> rentals = new List<Rental>();
+
+            string query = "SELECT * FROM `rental_information` ";
+            if (customerId.HasValue)
+            {
+                query += "WHERE `customer_id` = @custid";
+            }
+
+            try
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+                    using (var cmd = new MySqlCommand(query, conn))
+                    {
+                        if (customerId.HasValue)
+                        {
+                            cmd.Parameters.AddWithValue("@custid", customerId);
+                        }
+
+                        string finalQuery = BuildQueryString(cmd);
+                        Console.WriteLine(finalQuery);
+
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var rentalinfo = _rentalInformationMapper.MapFromReaderRentalInformation(reader);
+                                rentals.Add(rentalinfo);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+
+            }
+
+            return rentals;
+        }
+
+            //for debuggin only
+            private string BuildQueryString(MySqlCommand cmd)
         {
             string query = cmd.CommandText;
             foreach (MySqlParameter param in cmd.Parameters)
