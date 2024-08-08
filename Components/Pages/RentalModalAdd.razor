@@ -1,4 +1,8 @@
-﻿<!-- Add New Rental -->
+﻿@using Models
+@inject Services.DatabaseService DatabaseService
+
+
+<!-- Add New Rental -->
 <div class="form-group">
     <label class="form-label mt-2" for="currentdate">Current Date</label>
     <input type="date" @bind="_currentDate" class="form-control" id="currentdate" />
@@ -6,10 +10,25 @@
 <div class="form-group">
     <label class="form-label mt-2" for="customer">Customer</label>
     <input type="number" @bind="_customerId" class="form-control" id="customer" />
+    <select class="form-control" @bind="_customerId" placeholder="Select a customer">
+        <option disabled>Select Customer</option>
+        @foreach (Customer c in customerOptions)
+        {
+            @if (_customerId == c.CustomerId) _sel = "selected";
+            <option title="@c.CustomerId">@c.FirstName @c.LastName</option>
+        }
+    </select>
+    <div>@testMsg</div>
 </div>
 <div class="form-group">
     <label class="form-label mt-2" for="equipment">Equipment</label>
     <input type="number" @bind="_equipmentId" class="form-control" id="equipment" />
+    <select class="form-control" @bind="_equipmentId" placeholder="Select Equipment" >
+        @foreach(Customer c in customerOptions)
+        {
+            <option title="@c.CustomerId">@c.FirstName @c.LastName</option>
+        }
+    </select>
 </div>
 <div class="form-group">
     <label class="form-label mt-2" for="rentaldate">Rental Date</label>
@@ -29,17 +48,27 @@
 @code {
 
     [Parameter] public EventCallback<List<object>> OnClickCallback { get; set; }
-
+    private List<Customer> customerOptions = new List<Customer>();
+    private List<Models.RentalEquipment> equipmentOptions = new List<RentalEquipment>();
+    private string? testMsg;
     private DateOnly? _currentDate;
     private int? _customerId;
     private int? _equipmentId;
     private DateOnly? _rentalDate;
     private DateOnly? _returnDate;
+    private string _sel = "";
     private List<object> returnVal { get; set; } = new List<object>();
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        CustomerOptions();
+        EquipmentOptions();
     }
 
     private async Task HandleClick()
@@ -52,5 +81,32 @@
         if (_returnDate != null) returnVal.Add(_returnDate);
 
         await OnClickCallback.InvokeAsync(returnVal);
+    }
+
+    private async Task CustomerOptions()
+    {
+        try
+        {
+            customerOptions = await DatabaseService.GetCustomers();
+            testMsg = "test";
+
+        }
+        catch (Exception e)
+        {
+            testMsg = $"Error loading options: {e.Message}";
+        }
+    }
+
+    private async Task EquipmentOptions()
+    {
+        try
+        {
+            //equipmentOptions = await DatabaseService.GetRentalEquipmentAsync();
+
+        }
+        catch (Exception e)
+        {
+            testMsg = $"Error loading options: {e.Message}";
+        }
     }
 }

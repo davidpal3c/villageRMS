@@ -6,10 +6,15 @@
 
 <h1>Rental Categories</h1>
 <p>@msg</p>
-<div class="mt-3 bg-success text-white bg-opacity-75">
-    @testMsg
-</div>
-
+@if (@testMsg != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+         @testMsg
+        <button type="button" class="closee" aria-label="Close" @onclick="CloseMessage">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
 <div class="nav-header">
     <div>
         <form @onsubmit="FilterCategories">
@@ -69,11 +74,11 @@
                     <td>@c.CategoryId.ToString()</td>
                     <td>@c.CategoryDescription</td>
                     <td>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" @onclick="() => ShowCategoryUpdateModal(c)">
                             <i class="bi bi-pencil-square"></i>
                         </button>
 
-                        <button type="submit" class="btn btn-danger">
+                        <button type="submit" class="btn btn-danger" @onclick="() => ShowDeleteConfirmationModal(c)">
                             <i class="bi bi-trash"></i>
                         </button>
                     </td>
@@ -121,6 +126,11 @@
         {
             testMsg = $"Error during refresh: {e.Message}";
         }
+    }
+
+    private void CloseMessage()
+    {
+        testMsg = null;
     }
 
 
@@ -180,14 +190,16 @@
     {
         try
         {
-            testMsg = $"new category data: {newCatData[0]}";
+            testMsg = $"New category \"{newCatData[1]}\" added successfully.";
             await DatabaseService.AddCategory(newCatData);
             await RefreshList();
             await modal.HideAsync();
+            //await App.Current.MainPage.DisplayAlert("Success", testMsg, "OK");
         }
         catch (Exception e)
         {
             testMsg = $"An error occurred: {e.Message}";
+            //await App.Current.MainPage.DisplayAlert("Success", testMsg, "OK");
         }
     }
 
@@ -199,7 +211,7 @@
         {
             var parameters = new Dictionary<string, object>
             {
-                { "RentalCategory", category },
+                { "Category", category },
                 { "OnClickCallback", EventCallback.Factory.Create<RentalCategory>(this, TestSuccessCallbackUpdate)}
             };
             await modal.ShowAsync<CategoryModalUpdate>(title: "Update Category", parameters: parameters);
@@ -217,7 +229,7 @@
     {
         try
         {
-            //testMsg = $"CategoryID: {updatedCategory.CategoryId}, Category Description: {updatedCategory.CategoryDescription}, updated successfully";
+            testMsg = $"{updatedCategory.CategoryDescription} updated successfully";
             await DatabaseService.UpdateCategory(updatedCategory);
             await RefreshList();
             await modal.HideAsync();
@@ -255,7 +267,7 @@
             if (confirmed)
             {
                 await DatabaseService.DeleteCategory(category);
-                testMsg = $"CategoryID: {category.CategoryId}, Category Description: {category.CategoryDescription}, deleted successfully";
+                testMsg = $"{category.CategoryDescription} deleted successfully";
                 await RefreshList();
             }
             else

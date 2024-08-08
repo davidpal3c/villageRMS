@@ -242,7 +242,7 @@ namespace VillageRMS.Services
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {
                     cmd.Parameters.AddWithValue("@CategoryDescription", category.CategoryDescription);
-                  
+                    cmd.Parameters.AddWithValue("@CategoryId", category.CategoryId);
 
                     await cmd.ExecuteNonQueryAsync();
                 }
@@ -328,7 +328,7 @@ namespace VillageRMS.Services
             {
                 await conn.OpenAsync();
 
-                using (MySqlCommand cmd = new MySqlCommand("SELECT * FROM rental_info", conn))
+                using (MySqlCommand cmd = new MySqlCommand("SELECT * FROM rental_information_view", conn))
                 {
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
@@ -398,7 +398,7 @@ namespace VillageRMS.Services
                 await conn.OpenAsync();
                 
 
-                string commandString = "UPDATE rental_info SET  currentdate = @CurrentDate, customer_id = @CustomerId, equipment_id = @EquipmentId, rental_date = @RentalDate, return_date = @ReturnDate WHERE rental_id = @RentalId";
+                string commandString = "UPDATE rental_info SET currentdate = @CurrentDate, customer_id = @CustomerId, equipment_id = @EquipmentId, rental_date = @RentalDate, return_date = @ReturnDate WHERE rental_id = @RentalId";
 
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {

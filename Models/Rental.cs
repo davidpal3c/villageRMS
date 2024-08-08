@@ -11,7 +11,9 @@ namespace VillageRMS.Models
         private int _rentalId;
         private DateTime _currentDate;
         private int _customerId;
+        private string _customerName;
         private int _equipmentId;
+        private string _equipmentName;
         private DateTime _rentalDate;
         private DateTime _returnDate;
         private double _cost;
@@ -34,10 +36,22 @@ namespace VillageRMS.Models
             set { _customerId = value; }
         }
 
+        public string CustomerName
+        {
+            get { return _customerName; }
+            set { _customerName = value; }
+        }
+
         public int EquipmentId
         {
             get { return _equipmentId; }
             set { _equipmentId = value; }
+        }
+
+        public string EquipmentName
+        {
+            get { return _equipmentName; }
+            set { _equipmentName = value; }
         }
 
         public DateTime RentalDate
@@ -60,12 +74,14 @@ namespace VillageRMS.Models
 
         public Rental() { }
 
-        public Rental(int rentalId, DateTime currentDate, int customerId, int equipmentId, DateTime rentalDate, DateTime returnDate, double cost)
+        public Rental(int rentalId, DateTime currentDate, int customerId, string customerName, int equipmentId, string equipmentName, DateTime rentalDate, DateTime returnDate, double cost)
         {
             RentalId = rentalId;
             CurrentDate = currentDate;
             CustomerId = customerId;
+            CustomerName = customerName;
             EquipmentId = equipmentId;
+            EquipmentName = equipmentName;
             RentalDate = rentalDate;
             ReturnDate = returnDate;
             Cost = cost;

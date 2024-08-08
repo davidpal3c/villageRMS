@@ -148,6 +148,27 @@ h2
   
 }
 
+.closee {
+    position: absolute !important;
+    right: 10px;
+    top: 0px;
+    bottom: 0px;
+    background-color: #a4cfbb;
+    border: none;
+    width: 25px;
+    height: 25px;
+    margin: auto;
+    border-radius: 60px;
+    opacity: 0.6;
+    -webkit-transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+}
+
+.closee:hover
+{
+    opacity:1.0;
+}
+
 .thead-tr
 {
     border-bottom:solid 3px #000000;
