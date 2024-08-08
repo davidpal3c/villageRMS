@@ -16,5 +16,24 @@ namespace VillageRMS.Models
         public DateOnly ReturnDate { get; set; }
 
         public double Cost { get; set; }
+
+        public Rental() { }
+
+        public Rental(int rentalId, DateOnly recordDate, int customerId, int equipmentId, DateOnly rentalDate, DateOnly returnDate, double cost)
+        {
+            RentalId = rentalId;
+            RecordDate = recordDate;
+            CustomerId = customerId;
+            EquipmentId = equipmentId;
+            RentalDate = rentalDate;
+            ReturnDate = returnDate;
+            Cost = cost;
+        
+        }
+
+        public override string ToString() 
+        {
+            return $"";
+        }
     }
 }

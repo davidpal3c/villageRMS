@@ -37,7 +37,7 @@ else
     </div>
 
     <Modal @ref="modal" />
-    <table class="table">
+    <table class="table new-table">
         <thead>
             <tr>
                 <th>ID</th>
@@ -114,7 +114,6 @@ else
     private List<Customer>? result;
 
     private string? name;
-
 
 
     protected override async Task OnInitializedAsync()
@@ -222,7 +221,6 @@ else
     {
         try
         {
-
             testMsg = $"CustomerID: {updatedCustomer.CustomerId}, First name: {updatedCustomer.FirstName}, Last Name: {updatedCustomer.LastName}, updated successfully";
             await DatabaseService.UpdateCustomer(updatedCustomer);
             await RefreshList();

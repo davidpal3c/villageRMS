@@ -1,5 +1,7 @@
 ﻿using VillageRMS.Models;
 using MySqlConnector;
+using System.Data;
+
 
 namespace VillageRMS.Services
 {
@@ -49,8 +51,61 @@ namespace VillageRMS.Services
             }
 
         }
-        
 
+        public Rental MapFromReaderRental(MySqlDataReader reader)
+        {
+            try
+            {
+                Rental rental = new Rental();
+
+                return new Rental
+                {
+                    RentalId = reader.GetInt32("rental_id"),
+                    CustomerId = reader.GetInt32("customer_id"),
+                    EquipmentId = reader.GetInt32("equipment_id"),
+                    CurrentDate = reader.GetDateTime("current_date"),
+                    RentalDate = reader.GetDateTime("rental_date"),
+                    ReturnDate = reader.GetDateTime("return_date"),
+                    Cost = reader.GetDouble("cost")
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
+
+        public async Task<RentalEquipment> MapFromReaderEquipmentAsync(MySqlDataReader reader)
+        {
+            try
+            {
+                RentalEquipment equipment = new RentalEquipment
+                {
+                    EquipmentId = reader.GetInt32("equipment_id"),                    
+                    Name = reader.GetString("name"),
+                    Description = reader.GetString("description"),
+                    Daily_rental_cost = reader.GetDouble("daily_rental_cost")                                        
+                };
+
+                int categoryId = reader.GetInt32("category");
+                string categoryDescription = reader.IsDBNull("category_description") ? "" : reader.GetString("category_description");
+
+                equipment._category = new RentalCategory
+                {
+                    CategoryId = categoryId,
+                    CategoryDescription = categoryDescription
+                };
+
+                return equipment;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
 
     }
 

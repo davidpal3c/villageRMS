@@ -69,11 +69,6 @@ h1:focus {
     display: none;
 }
 
-.bii
-{
-    top:-13px !important;
-}
-
 @supports (-webkit-touch-callout: none) {
     .status-bar-safe-area {
         display: flex;
@@ -113,8 +108,42 @@ h1:focus {
 }
 
 
-.edit-delete-column {
-    margin-left: 33rem;
+edit-delete-btn-box,
+edit-delete-btn {
+    display: flex;
+    flex-direction: row;
+    border: 1px solid black;
+}
+
+.new-modal
+{
+    position:fixed;
+    top:0px;
+    bottom:0px;
+    left:0px;
+    right:0px;
+    margin:auto;
+    background-color:#ffffff;
+    z-index:20;
+}
+
+.new-table
+{
+    width:100%;
+}
+
+h2
+{
+    font-weight:600;
+}
+
+bii
+{
+    display:block;
+    margin-left:15px;
+    left:15px;
+    right:15px;
+    margin-right:15px;
 }
 
 /* custom */
