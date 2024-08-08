@@ -328,7 +328,7 @@ namespace VillageRMS.Services
             {
                 await conn.OpenAsync();
 
-                using (MySqlCommand cmd = new MySqlCommand("SELECT * FROM rental_information", conn))
+                using (MySqlCommand cmd = new MySqlCommand("SELECT * FROM rental_info", conn))
                 {
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
@@ -347,22 +347,22 @@ namespace VillageRMS.Services
 
         public async Task AddRental(List<object> rentalData)
         {
-            if (rentalData == null || rentalData.Count != 4)
+            if (rentalData == null || rentalData.Count != 5)
                 throw new ArgumentException("Invalid rental data");
 
             using (MySqlConnection conn = new MySqlConnection(_connectionString))
             {
                 await conn.OpenAsync();
 
-                string commandString = "INSERT INTO rental_information (current_date, customer_id, equipment_id, rental_date, return_date) VALUES (@CurrentDate, @CustomerId, @EquipmentId, @RentalDate, @ReturnDate)";
+                string commandString = "INSERT INTO rental_info (currentdate, customer_id, equipment_id, rental_date, return_date) VALUES (@CurrentDate, @CustomerId, @EquipmentId, @RentalDate, @ReturnDate)";
 
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {
-                    cmd.Parameters.AddWithValue("@CurrentDate", rentalData[0].ToString());
+                    cmd.Parameters.AddWithValue("@CurrentDate", DateTime.Parse(rentalData[0].ToString()).ToString("yyyy-MM-dd"));
                     cmd.Parameters.AddWithValue("@CustomerId", rentalData[1]);
                     cmd.Parameters.AddWithValue("@EquipmentId", rentalData[2]);
-                    cmd.Parameters.AddWithValue("@RentalDate", rentalData[3].ToString());
-                    cmd.Parameters.AddWithValue("@ReturnDate", rentalData[4].ToString());
+                    cmd.Parameters.AddWithValue("@RentalDate", DateTime.Parse(rentalData[3].ToString()).ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@ReturnDate", DateTime.Parse(rentalData[4].ToString()).ToString("yyyy-MM-dd"));
 
                     await cmd.ExecuteNonQueryAsync();
                 }
@@ -398,10 +398,11 @@ namespace VillageRMS.Services
                 await conn.OpenAsync();
                 
 
-                string commandString = "UPDATE rental_information SET  customer_id = @CustomerId, equipment_id = @EquipmentId, rental_date = @RentalDate, return_date = @ReturnDate WHERE rental_id = @RentalId";
+                string commandString = "UPDATE rental_info SET  currentdate = @CurrentDate, customer_id = @CustomerId, equipment_id = @EquipmentId, rental_date = @RentalDate, return_date = @ReturnDate WHERE rental_id = @RentalId";
 
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {
+                    cmd.Parameters.AddWithValue("@CurrentDate", rental.CurrentDate.ToString("yyyy-MM-dd hh:mm:ss"));
                     cmd.Parameters.AddWithValue("@CustomerId", rental.CustomerId);
                     cmd.Parameters.AddWithValue("@EquipmentId", rental.EquipmentId);
                     cmd.Parameters.AddWithValue("@RentalDate", rental.RentalDate.ToString("yyyy-MM-dd hh:mm:ss"));

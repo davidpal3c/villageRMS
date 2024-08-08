@@ -92,7 +92,7 @@
     string? testMsg;
     private List<RentalCategory>? filteredData = new List<RentalCategory>();
     private List<RentalCategory>? result;
-    private string enteredCategory;
+    private string? enteredCategory;
 
     protected override async Task OnInitializedAsync()
     {
@@ -195,13 +195,20 @@
 
     private async Task ShowCategoryUpdateModal(RentalCategory category)
     {
-        var parameters = new Dictionary<string, object>
+        try
         {
-            { "Category", category },
-            { "OnClickCallback", EventCallback.Factory.Create<RentalCategory>(this, TestSuccessCallbackUpdate)}
-        };
-
-        await modal.ShowAsync<CategoryModalUpdate>(title: "Update Category", parameters: parameters);
+            var parameters = new Dictionary<string, object>
+            {
+                { "RentalCategory", category },
+                { "OnClickCallback", EventCallback.Factory.Create<RentalCategory>(this, TestSuccessCallbackUpdate)}
+            };
+            await modal.ShowAsync<CategoryModalUpdate>(title: "Update Category", parameters: parameters);
+           
+        }
+        catch(Exception e)
+        {
+            testMsg = $"An error occurred: {e.Message}";
+        } 
     }
 
 
@@ -210,7 +217,7 @@
     {
         try
         {
-            testMsg = $"CategoryID: {updatedCategory.CategoryId}, First name: {updatedCategory.CategoryDescription}, updated successfully";
+            //testMsg = $"CategoryID: {updatedCategory.CategoryId}, Category Description: {updatedCategory.CategoryDescription}, updated successfully";
             await DatabaseService.UpdateCategory(updatedCategory);
             await RefreshList();
             await modal.HideAsync();
@@ -254,7 +261,7 @@
             else
             {
                 //customer = null;
-                testMsg = "Customer deletion was canceled.";
+                testMsg = "Category deletion was canceled.";
                 await RefreshList();
             }
 

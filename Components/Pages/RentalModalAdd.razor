@@ -30,11 +30,11 @@
 
     [Parameter] public EventCallback<List<object>> OnClickCallback { get; set; }
 
-    private DateTime? _currentDate;
+    private DateOnly? _currentDate;
     private int? _customerId;
     private int? _equipmentId;
-    private DateTime? _rentalDate;
-    private DateTime? _returnDate;
+    private DateOnly? _rentalDate;
+    private DateOnly? _returnDate;
     private List<object> returnVal { get; set; } = new List<object>();
 
     protected override void OnInitialized()
