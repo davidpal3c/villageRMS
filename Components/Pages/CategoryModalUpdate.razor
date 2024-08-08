@@ -26,9 +26,15 @@
 </EditForm>
 
 @code {
-    [Parameter] public RentalCategory category { get; set; } = new RentalCategory();
+    private RentalCategory category;
+    [Parameter] public RentalCategory Category { get; set; } = new RentalCategory();
     [Parameter] public EventCallback<RentalCategory> OnClickCallback { get; set; }
 
+    protected override void OnParametersSet()
+    {
+        category = Category;
+        base.OnParametersSet();
+    }
 
     private async Task HandleClick()
     {

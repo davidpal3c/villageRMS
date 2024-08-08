@@ -19,18 +19,19 @@
     </div>
 
     <div>
-        <button type="submit" class="btn btn-success">
+        <button type="submit" class="btn btn-success" @onclick="ShowCategoryAddModal">
             <i class="bi bi-plus-lg"></i>
         </button>
     </div>
 
     <div>
-        <button type="submit" class="btn btn-secondary">
+        <button type="submit" class="btn btn-secondary" @onclick="RefreshList">
             <i class="bi bi-arrow-clockwise"></i>
         </button>
     </div>
 </div>
 
+<Modal @ref="modal" />
 
 <table class="table new-table">
     <thead>
@@ -49,11 +50,11 @@
                     <td>@c.CategoryId.ToString()</td>
                     <td>@c.CategoryDescription</td>
                     <td class="edit-delete-column">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" @onclick="() => ShowCategoryUpdateModal(c)">
                             <i class="bi bi-pencil-square"></i>
                         </button>
 
-                        <button type="submit" class="btn btn-danger">
+                        <button type="submit" class="btn btn-danger" @onclick="() => ShowDeleteConfirmationModal(c)">
                             <i class="bi bi-trash"></i>
                         </button>
                     </td>
@@ -187,11 +188,11 @@
     {
         var parameters = new Dictionary<string, object>
         {
-            { "Customer", category },
+            { "Category", category },
             { "OnClickCallback", EventCallback.Factory.Create<RentalCategory>(this, TestSuccessCallbackUpdate)}
         };
 
-        await modal.ShowAsync<CategoryModalUpdate>(title: "Update Customer", parameters: parameters);
+        await modal.ShowAsync<CategoryModalUpdate>(title: "Update Category", parameters: parameters);
     }
 
 
@@ -200,8 +201,8 @@
     {
         try
         {
-            testMsg = $"CustomerID: {updatedCategory.CustomerId}, First name: {updatedCategory.FirstName}, Last Name: {updatedCategory.LastName}, updated successfully";
-            await DatabaseService.UpdateCustomer(updatedCategory);
+            testMsg = $"CategoryID: {updatedCategory.CategoryId}, First name: {updatedCategory.CategoryDescription}, updated successfully";
+            await DatabaseService.UpdateCategory(updatedCategory);
             await RefreshList();
             await modal.HideAsync();
         }
@@ -223,7 +224,7 @@
             { "OnClickCallback", EventCallback.Factory.Create<(RentalCategory, bool)>(this, ConfirmCallbackDelete) }
         };
 
-        await modal.ShowAsync<CategoryModalDelete>(title: "Delete Customer", parameters: parameters);
+        await modal.ShowAsync<CategoryModalDelete>(title: "Delete Category", parameters: parameters);
     }
 
 
