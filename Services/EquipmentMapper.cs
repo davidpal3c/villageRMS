@@ -18,7 +18,7 @@ namespace VillageRMS.Services
                 return new RentalEquipment
                 {
                     EquipmentId = reader.GetInt32("equipment_id"),
-                    Category = reader.GetInt32("category"),
+                    CategoryId = reader.GetInt32("category"),
                     Name = reader.GetString("Name"),
                     Description = reader.GetString("description"),
                     Daily_rental_cost = reader.GetDouble("daily_rental_cost")

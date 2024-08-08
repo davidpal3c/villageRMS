@@ -11,7 +11,8 @@ namespace VillageRMS.Services
 {
     public class RentalService
     {
-        public static async Task<RentalCategory> LoadCategoryByIdAsync(int categoryId)
+        /*
+        public async Task<RentalCategory> LoadCategoryByIdAsync(int categoryId)
         {
             try
             {
@@ -21,6 +22,6 @@ namespace VillageRMS.Services
             {
                 throw new Exception($"An error occurred while loading the category: {ex.Message}");
             }
-        }
+        }*/
     }
 }
