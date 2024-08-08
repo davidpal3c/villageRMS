@@ -5,18 +5,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Reflection.Metadata.Ecma335;
+using Microsoft.Maui.Controls;
 
 namespace VillageRMS.Services
 {
     public class DatabaseService
     {
-        private static string _connectionString;
-        private static CustomerMapper _custMapper;
+
+        private readonly string _connectionString;
+        private readonly CustomerMapper _custMapper;
+        private readonly EquipmentMapper _equipmentMapper;
+        private readonly RentalInformationMapper _rentalInformationMapper;
 
         public DatabaseService(string connectionString)
         {
             _connectionString = connectionString;
             _custMapper = new CustomerMapper();
+            _equipmentMapper = new EquipmentMapper();
+            _rentalInformationMapper = new RentalInformationMapper();
         }
 
         //for testing only
@@ -176,8 +184,37 @@ namespace VillageRMS.Services
             return categoryList;
         }
 
+        // get equipment
+        public async Task<List<RentalEquipment>> GetEquipmentAsync()
+        {
+            List<RentalEquipment> equipmentList = new List<RentalEquipment>();
 
-        public static async Task<RentalCategory> GetCategoryByIdAsync(int categoryId)
+            try
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+
+                    using (var cmd = new MySqlCommand("SELECT * FROM rental_equipment", conn))
+                    {
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var equipment = _equipmentMapper.MapFromReaderRentalEquipment(reader);
+                                equipmentList.Add(equipment);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e)
+            {
+
+            }
+            return equipmentList;
+        }
+
+        public async Task<RentalCategory> GetCategoryByIdAsync(int categoryId)
         {
             RentalCategory category = null;
 
@@ -209,7 +246,7 @@ namespace VillageRMS.Services
         }
 
 
-        public static async Task<List<RentalEquipment>> GetRentalEquipmentAsync()
+        public async Task<List<RentalEquipment>> GetRentalEquipmentAsync()
         {
             List<RentalEquipment> equipmentList = new List<RentalEquipment>();
 
@@ -232,10 +269,109 @@ namespace VillageRMS.Services
                     }
                 }
             }
-
             return equipmentList;
         }
 
+        // get rental information
+        public async Task<List<Rental>> GetRentalInformationAsync(DateOnly? filter = null)
+        {
+            List<Rental> rentals = new List<Rental>();
+
+            string query = "SELECT * FROM `rental_information` ";
+            if (filter.HasValue)
+            {
+                query += "WHERE `current_date` = @date";
+            }
+
+            try
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+                    using (var cmd = new MySqlCommand(query, conn))
+                    {
+                        if (filter.HasValue)
+                        {
+                            cmd.Parameters.AddWithValue("@date", filter.Value.ToString("yyyy-MM-dd"));
+                        }
+
+                        string finalQuery = BuildQueryString(cmd);
+                        //Console.WriteLine(finalQuery);
+
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var rentalinfo = _rentalInformationMapper.MapFromReaderRentalInformation(reader);
+                                rentals.Add(rentalinfo);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                //Console.WriteLine($"Error: {e.Message}");
+                //throw;
+            }
+
+            return rentals;
+        }
+
+        public async Task<List<Rental>> GetRentalInformationAsync(int? customerId)
+        {
+            List<Rental> rentals = new List<Rental>();
+
+            string query = "SELECT * FROM `rental_information` ";
+            if (customerId.HasValue)
+            {
+                query += "WHERE `customer_id` = @custid";
+            }
+
+            try
+            {
+                using (var conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+                    using (var cmd = new MySqlCommand(query, conn))
+                    {
+                        if (customerId.HasValue)
+                        {
+                            cmd.Parameters.AddWithValue("@custid", customerId);
+                        }
+
+                        string finalQuery = BuildQueryString(cmd);
+                        Console.WriteLine(finalQuery);
+
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var rentalinfo = _rentalInformationMapper.MapFromReaderRentalInformation(reader);
+                                rentals.Add(rentalinfo);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+
+            }
+
+            return rentals;
+        }
+
+            //for debuggin only
+            private string BuildQueryString(MySqlCommand cmd)
+        {
+            string query = cmd.CommandText;
+            foreach (MySqlParameter param in cmd.Parameters)
+            {
+                query = query.Replace(param.ParameterName, $"'{param.Value}'");
+            }
+            return query;
+        }
                            
         public async Task AddNewEquipment(List<object> equipmentData)
         {
@@ -350,7 +486,7 @@ namespace VillageRMS.Services
 
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {
-                    cmd.Parameters.AddWithValue("@CurrentDate", rental.CurrentDate);
+                    cmd.Parameters.AddWithValue("@CurrentDate", rental.RecordDate);
                     cmd.Parameters.AddWithValue("@CustomerId", rental.CustomerId);
                     cmd.Parameters.AddWithValue("@EquipmentId", rental.EquipmentId);
                     cmd.Parameters.AddWithValue("@RentalDate", rental.RentalDate);
@@ -363,7 +499,23 @@ namespace VillageRMS.Services
                         
         }
 
+        public async Task<RentalCategory> LoadCategoryByIdAsync(int categoryId)
+        {
+            RentalCategory result = new RentalCategory();
+            try
+            {
+                result = await GetCategoryByIdAsync(categoryId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while loading the category: {ex.Message}");
+            }
+
+            return result;
+        }
     }
+
+    
 }
 
 
