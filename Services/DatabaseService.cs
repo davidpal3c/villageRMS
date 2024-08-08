@@ -213,7 +213,7 @@ namespace VillageRMS.Services
             return equipmentList;
         }
 
-        public static async Task<RentalCategory> GetCategoryByIdAsync(int categoryId)
+        public async Task<RentalCategory> GetCategoryByIdAsync(int categoryId)
         {
             RentalCategory category = null;
 
@@ -245,7 +245,7 @@ namespace VillageRMS.Services
         }
 
 
-        public static async Task<List<RentalEquipment>> GetRentalEquipmentAsync()
+        public async Task<List<RentalEquipment>> GetRentalEquipmentAsync()
         {
             List<RentalEquipment> equipmentList = new List<RentalEquipment>();
 
@@ -433,7 +433,7 @@ namespace VillageRMS.Services
 
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {
-                    cmd.Parameters.AddWithValue("@CurrentDate", rental.CurrentDate);
+                    cmd.Parameters.AddWithValue("@CurrentDate", rental.RecordDate);
                     cmd.Parameters.AddWithValue("@CustomerId", rental.CustomerId);
                     cmd.Parameters.AddWithValue("@EquipmentId", rental.EquipmentId);
                     cmd.Parameters.AddWithValue("@RentalDate", rental.RentalDate);
@@ -444,6 +444,21 @@ namespace VillageRMS.Services
                 }
             }
                         
+        }
+
+        public async Task<RentalCategory> LoadCategoryByIdAsync(int categoryId)
+        {
+            RentalCategory result = new RentalCategory();
+            try
+            {
+                result = await GetCategoryByIdAsync(categoryId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while loading the category: {ex.Message}");
+            }
+
+            return result;
         }
     }
 

@@ -63,9 +63,9 @@ namespace VillageRMS.Services
                     RentalId = reader.GetInt32("rental_id"),
                     CustomerId = reader.GetInt32("customer_id"),
                     EquipmentId = reader.GetInt32("equipment_id"),
-                    CurrentDate = reader.GetDateTime("current_date"),
-                    RentalDate = reader.GetDateTime("rental_date"),
-                    ReturnDate = reader.GetDateTime("return_date"),
+                    RecordDate = reader.GetDateOnly("current_date"),
+                    RentalDate = reader.GetDateOnly("rental_date"),
+                    ReturnDate = reader.GetDateOnly("return_date"),
                     Cost = reader.GetDouble("cost")
                 };
             }
@@ -85,17 +85,19 @@ namespace VillageRMS.Services
                     EquipmentId = reader.GetInt32("equipment_id"),                    
                     Name = reader.GetString("name"),
                     Description = reader.GetString("description"),
-                    Daily_rental_cost = reader.GetDouble("daily_rental_cost")                                        
+                    Daily_rental_cost = reader.GetDouble("daily_rental_cost"),
+                    CategoryId = reader.GetInt32("category")
+
                 };
 
-                int categoryId = reader.GetInt32("category");
-                string categoryDescription = reader.IsDBNull("category_description") ? "" : reader.GetString("category_description");
+                //int categoryId = reader.GetInt32("category");
+                //string categoryDescription = reader.IsDBNull("category_description") ? "" : reader.GetString("category_description");
 
-                equipment._category = new RentalCategory
+                /*equipment._category = new RentalCategory
                 {
                     CategoryId = categoryId,
                     CategoryDescription = categoryDescription
-                };
+                };*/
 
                 return equipment;
 

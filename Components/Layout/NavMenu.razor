@@ -12,34 +12,34 @@
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class=" bii bi-house" aria-hidden="true"></span> Home
+                <span class="bi bi-house fs-5 mb-4 ms-2" aria-hidden="true"></span> Home
             </NavLink>
         </div>
         @if (LoginStateService.IsLoggedIn) //limit menu visiblity
         {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="rentals">
-                    <span class="bii bi-card-checklist" aria-hidden="true"></span> Rentals
+                    <span class="bi bi-card-checklist fs-5 mb-4 ms-2" aria-hidden="true"></span> Rentals
                 </NavLink>
             </div>
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="rental-equipment">
-                    <span class="bii bi-wrench-adjustable-circle" aria-hidden="true"></span> Rental Equipment
+                    <span class="bi bi-wrench-adjustable-circle fs-5 mb-4 ms-2" aria-hidden="true"></span> Rental Equipment
                 </NavLink>
             </div>
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="customers">
-                    <span class="bi bi-people fs-5 mb-4" aria-hidden="true"></span> Customers
+                    <span class="bi bi-people fs-5 mb-4 ms-2" aria-hidden="true"></span> Customers
                 </NavLink>
             </div>
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="categories">
-                    <span class="bi bi-tools fs-5 mb-4" aria-hidden="true"></span> Rental Categories
+                    <span class="bi bi-tools fs-5 mb-4 ms-2" aria-hidden="true"></span> Rental Categories
             </NavLink>
         </div>
         <div class="nav-item px-3">
             <NavLink href="#" class="nav-link" @onclick="ToggleReportSubmenu">
-                <span class="bi bi-file-earmark-spreadsheet fs-5 mb-4" aria-hidden="true"></span> Reports
+                    <span class="bi bi-file-earmark-spreadsheet fs-5 mb-4 ms-2" aria-hidden="true"></span> Reports
             </NavLink>
             @* collapse *@
             <div class="submenu @(isReportSubmenuOpen ? "show" : "")">

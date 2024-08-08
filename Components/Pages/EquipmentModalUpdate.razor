@@ -52,7 +52,8 @@
     {
         if (int.TryParse(e.Value.ToString(), out int categoryId))
         {
-            await equipment.LoadCategoryById(categoryId);
+            //await equipment.LoadCategoryById(categoryId);
+
             StateHasChanged();
         }
     }

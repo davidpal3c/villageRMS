@@ -39,7 +39,7 @@
                     <td>@getEquipmentFromLookup(rental.EquipmentId)?.Name</td>
                     <td>@rental.RentalDate.ToString("d")</td>
                     <td>@rental.ReturnDate.ToString("d")</td>
-                    <td class="text-end">@rental.Cost.ToString("###,###,###.00")</td>
+                    <td class="text-end">@rental.Cost.ToString("C")</td>
                 </tr>
             }
         }
@@ -51,7 +51,7 @@
         }
     </tbody>
     <tfoot>
-        <h5 class="mt-3">Total : @Totals.ToString("###,###,###.00")</h5>
+        <h5 class="mt-3">Total : @Totals.ToString("C")</h5>
     </tfoot>
 </table>
 <p>@statusMsg</p>

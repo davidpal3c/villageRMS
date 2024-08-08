@@ -3,9 +3,6 @@
 @using Services
 @inject Services.DatabaseService DatabaseService
 
-
-
-
 <h1>Rental Equipment</h1>
 
 <p>@msg</p>
@@ -63,7 +60,7 @@ else
                     <tr>
                         <td>@e.EquipmentId.ToString()</td>
                         <td>@e.Name</td>
-                        <td>@e.CategoryDescription</td>
+                        <td>@categoryLookup.FirstOrDefault(c => c.CategoryId == e.CategoryId).CategoryDescription</td>
                         <td>@e.Description</td>
 
                         <td>@e.Daily_rental_cost.ToString("C")</td>
@@ -86,7 +83,7 @@ else
                     <tr>
                         <td>@e.EquipmentId.ToString()</td>
                         <td>@e.Name</td>
-                        <td>@e.CategoryDescription</td>
+                        <td>@categoryLookup.FirstOrDefault(c => c.CategoryId == e.CategoryId).CategoryDescription</td>
                         <td>@e.Description</td>
 
                         <td>@e.Daily_rental_cost.ToString("C")</td>
@@ -116,6 +113,7 @@ else
 
     private List<RentalEquipment>? filteredData = new List<Models.RentalEquipment>();
     private List<RentalEquipment>? result;
+    private List<RentalCategory> categoryLookup = new List<RentalCategory>();
     private Modal modal = default!;
 
     private string searchStr;
@@ -144,7 +142,8 @@ else
     {
         try
         {
-            equipmentList = await DatabaseService.GetRentalEquipmentAsync();             
+            equipmentList = await DatabaseService.GetRentalEquipmentAsync();
+            categoryLookup = await DatabaseService.GetCategories(); //lookup
             filteredData = null;
 
             if(equipmentList != null && equipmentList.Any())
@@ -206,9 +205,11 @@ else
             }    
             */
 
+            string EquipmentCategoryDescription = categoryLookup.FirstOrDefault(c => c.CategoryId == equipment.CategoryId).CategoryDescription;
+
             if (!string.IsNullOrEmpty(searchStr) &&
                 !(equipment.Name.Contains(searchStr, StringComparison.OrdinalIgnoreCase) ||
-                equipment.CategoryDescription.Contains(searchStr, StringComparison.OrdinalIgnoreCase) ||
+                EquipmentCategoryDescription.Contains(searchStr, StringComparison.OrdinalIgnoreCase) ||
                 equipment.Description.Contains(searchStr, StringComparison.OrdinalIgnoreCase)))
             {
                 match = false;
