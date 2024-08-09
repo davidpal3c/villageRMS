@@ -35,31 +35,36 @@
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="categories">
                     <span class="bi bi-tools fs-5 mb-4 ms-2" aria-hidden="true"></span> Rental Categories
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink href="#" class="nav-link" @onclick="ToggleReportSubmenu">
-                    <span class="bi bi-file-earmark-spreadsheet fs-5 mb-4 ms-2" aria-hidden="true"></span> Reports
-            </NavLink>
-            @* collapse *@
-            <div class="submenu @(isReportSubmenuOpen ? "show" : "")">
-                <div class="nav-item px-3 ms-3">
-                    <NavLink class="nav-link" href="ReportSalesByDate">
-                        <span class="m-1">Sales By Date</span>
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3 ms-3">
-                        <NavLink class="nav-link" href="ReportSalesByCustomer">
-                        <span class="m-1">Sales By Customer</span>
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3 ms-3">
-                    <NavLink class="nav-link" href="ReportSalesByDate">
-                        <span class="m-1">List items by category</span>
-                    </NavLink>
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="loadfromexcel">
+                    <span class="bi bi-file-spreadsheet fs-5 mb-4 ms-2" aria-hidden="true"></span> Load Data
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink href="#" class="nav-link" @onclick="ToggleReportSubmenu">
+                        <span class="bi bi-file-earmark-spreadsheet fs-5 mb-4 ms-2" aria-hidden="true"></span> Reports
+                </NavLink>
+                @* collapse *@
+                <div class="submenu @(isReportSubmenuOpen ? "show" : "")">
+                    <div class="nav-item px-3 ms-3">
+                        <NavLink class="nav-link" href="ReportSalesByDate">
+                            <span class="m-1">Sales By Date</span>
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3 ms-3">
+                            <NavLink class="nav-link" href="ReportSalesByCustomer">
+                            <span class="m-1">Sales By Customer</span>
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3 ms-3">
+                        <NavLink class="nav-link" href="ReportSalesByDate">
+                            <span class="m-1">List items by category</span>
+                        </NavLink>
+                    </div>
                 </div>
             </div>
-        </div>
         }
     </nav>
 </div>
