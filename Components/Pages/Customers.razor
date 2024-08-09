@@ -126,11 +126,11 @@ else
     {
         if (DatabaseService.isSuccessfulConnection())
         {
-            msg = "";
+            testMsg = "Connected successfully";
         }
         else
         {
-            msg = "Open ssh tunnel or reconfigure connection string at MauiProgram.cs";
+            testMsg = "Open ssh tunnel or reconfigure connection string at MauiProgram.cs";
         }
 
         //custList = await DatabaseService.GetCustomers();
@@ -202,7 +202,7 @@ else
     {
         try
         {
-            testMsg = $"new customer data: {newCustData[0]} {newCustData[1]} {newCustData[2]} {newCustData[3]}";
+            testMsg = $"New customer \"{newCustData[0]}\" was added successfully!";
             await DatabaseService.AddNewCustomer(newCustData);
             await RefreshList();
             await modal.HideAsync();
@@ -232,7 +232,7 @@ else
     {
         try
         {
-            testMsg = $"CustomerID: {updatedCustomer.CustomerId}, First name: {updatedCustomer.FirstName}, Last Name: {updatedCustomer.LastName}, updated successfully";
+            testMsg = $"{updatedCustomer.FirstName} {updatedCustomer.LastName} was updated successfully!";
             await DatabaseService.UpdateCustomer(updatedCustomer);
             await RefreshList();
             await modal.HideAsync();
@@ -270,7 +270,7 @@ else
             if (confirmed)
             {                
                 await DatabaseService.DeleteCustomer(customer);
-                testMsg = $"CustomerID: {customer.CustomerId}, First name: {customer.FirstName}, Last Name: {customer.LastName}, deleted successfully";
+                testMsg = $"{customer.FirstName} {customer.LastName} was deleted successfully!";
                 await RefreshList();                
             }
             else
