@@ -32,7 +32,7 @@ namespace VillageRMS.Models
         }
 
         [Required(ErrorMessage = "Phone number is required")]
-        [RegularExpression(@"^\d+$", ErrorMessage = "Phone number must be numeric")]
+        //[RegularExpression(@"^\d+$", ErrorMessage = "Phone number must be numeric")]
         [StringLength(15, ErrorMessage = "Phone number cannot exceed 15 digits")]
         public string PhoneNumber
         {

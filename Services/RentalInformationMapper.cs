@@ -16,8 +16,8 @@ namespace VillageRMS.Services
             {
                 return new Rental
                 {
-                    RentalId = reader.GetInt32("equipment_id"),
-                    RecordDate = reader.GetDateOnly("current_date"),
+                    RentalId = reader.GetInt32("rental_id"),
+                    CurrentDate = reader.GetDateOnly("currentdate"),
                     CustomerId = reader.GetInt32("customer_id"),
                     EquipmentId = reader.GetInt32("equipment_id"),
                     RentalDate = reader.GetDateOnly("rental_date"),

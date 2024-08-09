@@ -64,6 +64,7 @@
 
     <ItemGroup>
         <PackageReference Include="Blazor.Bootstrap" Version="2.2.0" />
+        <PackageReference Include="EPPlus" Version="7.2.2" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
@@ -72,10 +73,12 @@
     </ItemGroup>
 
     <ItemGroup>
+      <UpToDateCheckInput Remove="Components\Pages\CategoryModalAdd.razor" />
       <UpToDateCheckInput Remove="Components\Pages\ReportPages\ReportSalesByCustomer.razor" />
     </ItemGroup>
 
     <ItemGroup>
+      <_ContentIncludedByDefault Remove="Components\Pages\CategoryModalAdd.razor" />
       <_ContentIncludedByDefault Remove="Components\Pages\ReportPages\ReportSalesByCustomer.razor" />
     </ItemGroup>
 

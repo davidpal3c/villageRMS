@@ -7,7 +7,11 @@
 <EditForm Model="customer" OnValidSubmit="HandleClick">
     <DataAnnotationsValidator />
     <ValidationSummary />
-
+    <div class="form-group">
+        <label class="form-label mt-2" for="id">Customer Id</label>
+        <InputNumber @bind-Value="customer.CustomerId" class="form-control" id="id" readonly/>
+        <ValidationMessage For="@(() => customer.CustomerId)" />
+    </div>
     <div class="form-group">
         <label class="form-label mt-2" for="fn">First Name</label>
         <InputText @bind-Value="customer.FirstName" class="form-control" id="fn" />
