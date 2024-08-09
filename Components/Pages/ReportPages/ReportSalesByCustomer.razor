@@ -105,8 +105,8 @@
             {
                 rentalInformationList = await DatabaseService.GetRentalInformationAsync();
             }
-
-            equipmentLookup = await DatabaseService.GetEquipmentAsync();
+            int? catId = null;
+            equipmentLookup = await DatabaseService.GetEquipmentAsync(catId);
             custLookup = await DatabaseService.GetCustomers();
             Totals = rentalInformationList.Sum(r => r.Cost);
         }

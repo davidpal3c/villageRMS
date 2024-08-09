@@ -89,10 +89,11 @@
     protected async Task RefreshList(DateOnly? filter = null)
     {
         statusMsg = String.Empty;
+        int? catID = null;
         try
         {
             rentalInformationList = await DatabaseService.GetRentalInformationAsync(filter);
-            equipmentLookup = await DatabaseService.GetEquipmentAsync();
+            equipmentLookup = await DatabaseService.GetEquipmentAsync(catID);
             custLookup = await DatabaseService.GetCustomers();
             Totals = rentalInformationList.Sum(r => r.Cost);
         }

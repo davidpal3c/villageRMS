@@ -243,9 +243,16 @@ namespace VillageRMS.Services
         }
 
         // get equipment
-        public async Task<List<RentalEquipment>> GetEquipmentAsync()
+        public async Task<List<RentalEquipment>> GetEquipmentAsync(int? catId)
         {
             List<RentalEquipment> equipmentList = new List<RentalEquipment>();
+
+            string query = "SELECT * FROM rental_equipment ";
+
+            if (catId.HasValue)
+            {
+                query += "WHERE category = @catId;";
+            }
 
             try
             {
@@ -253,8 +260,15 @@ namespace VillageRMS.Services
                 {
                     await conn.OpenAsync();
 
-                    using (var cmd = new MySqlCommand("SELECT * FROM rental_equipment", conn))
+                    using (var cmd = new MySqlCommand(query, conn))
                     {
+                        if (catId.HasValue)
+                        {
+                            cmd.Parameters.AddWithValue("@catId",catId);
+                        }
+
+                        string finalQuery = BuildQueryString(cmd);
+
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
                             while (await reader.ReadAsync())
