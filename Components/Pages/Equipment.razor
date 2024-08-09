@@ -251,7 +251,7 @@ else
     {
         try
         {
-            testMsg = $"new customer data: {newEquipData[0]} {newEquipData[1]} {newEquipData[2]} {newEquipData[3]}";
+            testMsg = $"Equipment \"{newEquipData[1]}\" added successfully";
             await DatabaseService.AddNewEquipment(newEquipData);
             await RefreshList();
             await modal.HideAsync();
@@ -280,7 +280,7 @@ else
     {
         try
         {
-            //testMsg = $"CustomerID: {updatedCustomer.CustomerId}, First name: {updatedCustomer.FirstName}, Last Name: {updatedCustomer.LastName}, updated successfully";
+            testMsg = $"{updatedEquipment.Name} updated successfully";
             await DatabaseService.UpdateEquipment(updatedEquipment);
             await RefreshList();
             await modal.HideAsync();
@@ -316,7 +316,7 @@ else
             if (confirmed)
             {
                 await DatabaseService.DeleteEquipment(equipment);
-                testMsg = $"EquipmentID: {equipment.EquipmentId}, Name: {equipment.Name}, Category: {equipment.CategoryId}, deleted successfully";
+                testMsg = $"{equipment.Name} deleted successfully";
                 await RefreshList();                
             }
             else
