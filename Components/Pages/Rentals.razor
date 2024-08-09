@@ -58,10 +58,10 @@ else
             </tr>
         </thead>
         <tbody>
-            @if(filteredData.Count > 0)
+            @if(filteredData != null)
             {
-            @foreach (Rental search in filteredData)
-            {
+                @foreach (Rental search in filteredData)
+                {
                 <tr>
                     <td>@search.RentalId</td>
                     <td>@search.CurrentDate</td>
@@ -111,7 +111,7 @@ else
 
     private string msg = String.Empty;
 
-    private List<Rental> filteredData = new List<Models.Rental>();
+    private List<Rental>? filteredData = new List<Models.Rental>();
     private List<Rental>? result = new List<Rental>();
     private string? searchStr;
     private string? name;
