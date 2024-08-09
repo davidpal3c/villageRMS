@@ -1,4 +1,7 @@
 ﻿@page "/loadfromexcel"
+@using Models
+@using MySqlConnector
+@inject Services.DatabaseService DatabaseService
 
 @using OfficeOpenXml
 
@@ -6,42 +9,48 @@
 <div class="nav-header">
     <div>
         <form @onsubmit="LoadData">
-            <label for="btnLoad"></label>
+            <input type="text" @bind="filename" />
             <button type="submit" class="btn btn-primary" id="btnLoad">Load From Excel</button>
         </form>
     </div>
+
+</div>
+<div>
+
 </div>
 <p>@statusMsg</p>
-@foreach (string l in logs)
+@foreach (string log in logs)
 {
-    <p>@l</p>
+    <p class="mb-0">@log</p>
 }
 
 @code {
     private string statusMsg;
-    private readonly string _excelPath = "../../../../../Resources/DataSource/data-samples.xlsx"; // Your original path
+    private string filename = "data-samples.xlsx";
+    private string excelPath = $"../../../../../Resources/DataSource/"; // Your original path
     List<string> logs = new List<string>();
 
+    //define table structure and table header indicators
     Dictionary<string, object> markers = new Dictionary<string, object>
     {
         {"Category", new { cols = 2, indicator = "category id" } },
         {"Equipment", new { cols = 5, indicator = "equipment_id" } },
         {"Customer", new { cols = 5, indicator = "customer_id" } },
-        {"Rental", new { cols = 6, indicator = "rental_id" } }
+        {"Rental", new { cols = 7, indicator = "rental_id" } }
     };
 
     protected override async Task OnInitializedAsync()
     {
-        
-        
+
+
     }
 
     private async Task LoadData()
     {
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        string relativePath = Path.Combine(baseDirectory, _excelPath);
+        string relativePath = Path.Combine(baseDirectory, excelPath + filename);
         string fullPath = Path.GetFullPath(relativePath);
-       
+
 
         if (!File.Exists(fullPath))
         {
@@ -64,40 +73,203 @@
                 var rowCount = worksheet.Dimension.Rows;
                 var colCount = worksheet.Dimension.Columns;
 
+                bool startCategory = false;
+                bool startEquip = false;
+                bool startRental = false;
+                bool startCustomer = false;
+
+
                 for (int row = 1; row <= rowCount; row++)
                 {
-                    //for (int col = 1; col <= colCount; col++)
-                    //{
-                    //var cellValue = worksheet.Cells[row, col].Text;
-                    // Do something with cellValue
-                    //}
-                    var categoryValue = markers["Category"];
-                    var indicatorProperty = categoryValue.GetType().GetProperty("indicator");
-                    var categoryIndicator = (string)indicatorProperty.GetValue(categoryValue);
+                    int nextRowAfterTableHeader = 0;
+                    //category
+                    var categoryKey = markers["Category"];
+                    var catIndicatorProperty = categoryKey.GetType().GetProperty("indicator");
+                    var categoryIndicator = (string)catIndicatorProperty.GetValue(categoryKey); //the value
+                    var numberofColumnsCategory = categoryKey.GetType().GetProperty("cols");
+                    var categoryNumberOfColumns = (int)numberofColumnsCategory.GetValue(categoryKey); //the value
 
+                    //equipment
+                    var equipKey = markers["Equipment"];
+                    var equipIndicatorProperty = categoryKey.GetType().GetProperty("indicator");
+                    var equipIndicator = (string)equipIndicatorProperty.GetValue(equipKey); //the value
+                    var numberofColumnsEquip = categoryKey.GetType().GetProperty("cols");
+                    var equipNumberOfColumns = (int)numberofColumnsEquip.GetValue(equipKey); //the value
+
+                    //customer
+                    var custKey = markers["Customer"];
+                    var custIndicatorProperty = categoryKey.GetType().GetProperty("indicator");
+                    var custIndicator = (string)custIndicatorProperty.GetValue(custKey); //the value
+                    var numberofColumnsCustomer = categoryKey.GetType().GetProperty("cols");
+                    var custNumberOfColumns = (int)numberofColumnsCustomer.GetValue(custKey); //the value
+
+
+                    //rental
+                    var rentalKey = markers["Rental"];
+                    var rentalIndicatorProperty = categoryKey.GetType().GetProperty("indicator");
+                    var rentalIndicator = (string)rentalIndicatorProperty.GetValue(rentalKey); //the value
+                    var numberofColumnsRental = categoryKey.GetType().GetProperty("cols");
+                    var rentalNumberOfColumns = (int)numberofColumnsRental.GetValue(rentalKey); //the value
+
+                    //category start
                     if (worksheet.Cells[row, 1].Text == categoryIndicator.ToString())
                     {
-                        logs.Add($"{categoryIndicator} at [{row},{1}]");
+                        logs.Add($"{categoryIndicator} at [{row},{1}] - table marker");
+                        startCategory = true;
+                        nextRowAfterTableHeader = row;
                     }
 
-                    if (worksheet.Cells[row, 1].Text == "equipment_id")
+                    if (startCategory && row > nextRowAfterTableHeader)
                     {
-                        logs.Add($"[{row},{1}]");
+                        if (worksheet.Cells[row, 1].Text == "") {
+                            startCategory = false; //stop
+                        } else {
+                            List<string> catParams = new List<string>();
+                            for (int col = 1; col <= categoryNumberOfColumns; col++)
+                            {
+                                logs.Add($"reading data at [{row},{col}] : {worksheet.Cells[row, col].Text}");
+                                catParams.Add(worksheet.Cells[row, col].Text);
+                            }
+
+                            //insert
+                            try
+                            {
+                                await DatabaseService.AddNewCategoryAsync(catParams);
+                            }
+                            catch (MySqlException ex)
+                            {
+                                logs.Add($"error on insert using data {catParams[0]} {catParams[1]}, error: {ex.Message}");
+                            }
+                            catch (Exception ex)
+                            {
+                                logs.Add($"unidentified error on insert using data {catParams[0]} {catParams[1]}, error: {ex.Message}");
+                            }
+                            logs.Add($"adding: {catParams[0]} {catParams[1]}");
+                        }
                     }
 
-                    if (worksheet.Cells[row, 1].Text == "customer_id")
+                    //equipment start
+                    if (worksheet.Cells[row, 1].Text == equipIndicator.ToString())
                     {
-                        logs.Add($"[{row},{1}]");
+                        logs.Add($"{equipIndicator} at [{row},{1}] - table marker");
+                        startEquip = true;
+                        nextRowAfterTableHeader = row;
                     }
 
-                    if (worksheet.Cells[row, 1].Text == "rental_id")
+                    if (startEquip && row > nextRowAfterTableHeader)
                     {
-                        logs.Add($"[{row},{1}]");
+                        if (worksheet.Cells[row, 1].Text == "")
+                        {
+                            startEquip = false; //stop
+                        }
+                        else
+                        {
+                            List<object> equipParams = new List<object>();
+                            for (int col = 1; col <= equipNumberOfColumns; col++)
+                            {
+                                logs.Add($"reading data at [{row},{col}] : {worksheet.Cells[row, col].Text}");
+                                equipParams.Add(worksheet.Cells[row, col].Text);
+                            }
+
+                            //insert
+                            try
+                            {
+                                await DatabaseService.AddNewEquipment(equipParams);
+                            }
+                            catch (MySqlException ex)
+                            {
+                                
+                            }
+                            catch (Exception ex)
+                            {
+                                
+                            }
+                            logs.Add($"adding: {equipParams[0]} {equipParams[1]} {equipParams[2]} {equipParams[3]} {equipParams[4]}");
+                        }
+                    }
+
+                    //customer start
+                    if (worksheet.Cells[row, 1].Text == custIndicator.ToString())
+                    {
+                        logs.Add($"{custIndicator} at [{row},{1}] - table marker");
+                        startCustomer = true;
+                        nextRowAfterTableHeader = row;
+                    }
+
+                    if (startCustomer && row > nextRowAfterTableHeader)
+                    {
+                        if (worksheet.Cells[row, 1].Text == "")
+                        {
+                            startCustomer = false; //stop
+                        }
+                        else
+                        {
+                            List<string> custParams = new List<string>();
+                            for (int col = 1; col <= custNumberOfColumns; col++)
+                            {
+                                logs.Add($"reading data at [{row},{col}] : {worksheet.Cells[row, col].Text}");
+                                custParams.Add(worksheet.Cells[row, col].Text);
+                            }
+
+                            //insert
+                            try
+                            {
+                                await DatabaseService.AddNewCustomer(custParams);
+                            }
+                            catch (MySqlException ex)
+                            {
+                                
+                            }
+                            catch (Exception ex)
+                            {
+                                
+                            }
+                            logs.Add($"adding: {custParams[0]} {custParams[1]} {custParams[2]} {custParams[3]} {custParams[4]} ");
+                        }
+                    }
+
+                    //rental start
+                    if (worksheet.Cells[row, 1].Text == rentalIndicator.ToString())
+                    {
+                        logs.Add($"{categoryIndicator} at [{row},{1}] - table marker");
+                        startRental = true;
+                        nextRowAfterTableHeader = row;
+                    }
+
+                    if (startRental && row > nextRowAfterTableHeader)
+                    {
+                        if (worksheet.Cells[row, 1].Text == "")
+                        {
+                            startRental = false; //stop
+                        }
+                        else
+                        {
+                            List<object> rentalParams = new List<object>();
+                            for (int col = 1; col <= rentalNumberOfColumns; col++)
+                            {
+                                logs.Add($"reading data at [{row},{col}] : {worksheet.Cells[row, col].Text}");
+                                rentalParams.Add(worksheet.Cells[row, col].Text);
+                            }
+
+                            //insert
+                            try
+                            {
+                                await DatabaseService.AddRental(rentalParams);
+                            }
+                            catch (MySqlException ex)
+                            {
+                                
+                            }
+                            catch (Exception ex)
+                            {
+                                
+                            }
+                            logs.Add($"adding: {rentalParams[0]} {rentalParams[1]} {rentalParams[2]} {rentalParams[3]} {rentalParams[4]} {rentalParams[5]} {rentalParams[6]}");
+                        }
                     }
                 }
 
-                //statusMsg = worksheet.Cells[1, 1].Text;
-                //statusMsg = "Data loaded successfully.";
+                statusMsg = "Excel Processed.";
             }
         }
         catch (Exception e)

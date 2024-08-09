@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Reflection.Metadata.Ecma335;
 using Microsoft.Maui.Controls;
+using System.Linq.Expressions;
 
 namespace VillageRMS.Services
 {
@@ -74,21 +75,48 @@ namespace VillageRMS.Services
 
         public async Task AddNewCustomer(List<string> customerData)
         {
-            if (customerData == null || customerData.Count != 4)
+            //if (customerData == null || customerData.Count != 4)
+            //    throw new ArgumentException("Invalid customer data");
+            if (customerData == null || !(customerData.Count == 5 || customerData.Count == 4))
                 throw new ArgumentException("Invalid customer data");
+
+            string additionalColumn = String.Empty;
+            string additionalParam = String.Empty;
+
+            if (customerData.Count == 4) //no id and use auto increment
+            {
+                additionalColumn = "";
+                additionalParam = "";
+            }
+            else
+            {
+                additionalColumn = "CustomerID,";
+                additionalParam = "@custID,";
+            }
 
             using (MySqlConnection conn = new MySqlConnection(_connectionString))
             {
                 await conn.OpenAsync();
 
-                string commandString = "INSERT INTO Customer (LastName, FirstName, ContactPhone, Email) VALUES (@LastName, @FirstName, @ContactPhone, @Email)";
+                string commandString = $"INSERT INTO Customer ({additionalColumn} LastName, FirstName, ContactPhone, Email) VALUES ({additionalParam} @LastName, @FirstName, @ContactPhone, @Email);";
 
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {
-                    cmd.Parameters.AddWithValue("@LastName", customerData[0]);
-                    cmd.Parameters.AddWithValue("@FirstName", customerData[1]);
-                    cmd.Parameters.AddWithValue("@ContactPhone", customerData[2]);
-                    cmd.Parameters.AddWithValue("@Email", customerData[3]);
+                    int moveIndex = 0;
+
+                    if (customerData.Count == 5)
+                    {
+                        moveIndex = 1;
+                        cmd.Parameters.AddWithValue("@custID", customerData[0]);
+                    }
+
+
+                    cmd.Parameters.AddWithValue("@LastName", customerData[0 + moveIndex]);
+                    cmd.Parameters.AddWithValue("@FirstName", customerData[1 + moveIndex]);
+                    cmd.Parameters.AddWithValue("@ContactPhone", customerData[2 + moveIndex]);
+                    cmd.Parameters.AddWithValue("@Email", customerData[3 + moveIndex]);
+
+                    string cmdString = BuildQueryString(cmd);
 
                     await cmd.ExecuteNonQueryAsync();
                 }
@@ -182,6 +210,36 @@ namespace VillageRMS.Services
             }
 
             return categoryList;
+        }
+
+        public async Task AddNewCategoryAsync(List<string> catData)
+        {
+            if (catData == null || catData.Count != 2)
+                throw new ArgumentException("incomplete data");
+
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+
+                    string commandString = "INSERT INTO category_list (category_id, category_description) VALUES (@CatId, @Desc);";
+
+                    using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@CatId", catData[0]);
+                        cmd.Parameters.AddWithValue("@Desc", catData[1]);
+
+                        //string cmdString = BuildQueryString(cmd);
+
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+                } 
+            } catch (Exception ex)
+            {
+                
+            }
+            
         }
 
         // get equipment
@@ -375,21 +433,46 @@ namespace VillageRMS.Services
                            
         public async Task AddNewEquipment(List<object> equipmentData)
         {
-            if (equipmentData == null || equipmentData.Count != 4)
-                throw new ArgumentException("Invalid equipment data");
+            //if (equipmentData == null || equipmentData.Count != 4)
+            if (equipmentData == null || !(equipmentData.Count == 5 || equipmentData.Count == 4))
+                    throw new ArgumentException("Invalid equipment data");
 
             using (MySqlConnection conn = new MySqlConnection(_connectionString))
             {
                 await conn.OpenAsync();
 
-                string commandString = "INSERT INTO rental_equipment (name, category, description, daily_rental_cost) VALUES (@Name, @CategoryId, @Description, @DailyCost)";
+                string additionalColumn = String.Empty;
+                string additionalParam = String.Empty;
+
+                if (equipmentData.Count == 4) //no id and use auto increment
+                {
+                    additionalColumn = "";
+                    additionalParam = "";
+                }
+                else
+                {
+                    additionalColumn = "equipment_id,";
+                    additionalParam = "@equipId,";
+                }
+
+                string commandString = $"INSERT INTO rental_equipment ({additionalColumn} category, name,  description, daily_rental_cost) VALUES ({additionalParam} @CategoryId, @Name, @Description, @DailyCost);";
 
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {
-                    cmd.Parameters.AddWithValue("@Name", equipmentData[0]);
-                    cmd.Parameters.AddWithValue("@CategoryId", equipmentData[1]);
-                    cmd.Parameters.AddWithValue("@Description", equipmentData[2]);
-                    cmd.Parameters.AddWithValue("@DailyCost", equipmentData[3]);
+                    int moveIndex = 0;
+
+                    if (equipmentData.Count == 5)
+                    {
+                        moveIndex = 1;
+                        cmd.Parameters.AddWithValue("@equipId", equipmentData[0]);
+                    }
+
+                    cmd.Parameters.AddWithValue("@CategoryId", equipmentData[0 + moveIndex]);
+                    cmd.Parameters.AddWithValue("@Name", equipmentData[1 + moveIndex]);
+                    cmd.Parameters.AddWithValue("@Description", equipmentData[2 + moveIndex]);
+                    cmd.Parameters.AddWithValue("@DailyCost", equipmentData[3 + moveIndex]);
+
+                    string cmdString = BuildQueryString(cmd);
 
                     await cmd.ExecuteNonQueryAsync();
                 }
@@ -424,26 +507,54 @@ namespace VillageRMS.Services
 
         public async Task AddRental(List<object> rentalData)
         {
-            if (rentalData == null || rentalData.Count != 4)
+            if (rentalData == null || !(rentalData.Count == 7 || rentalData.Count == 6))
                 throw new ArgumentException("Invalid rental data");
-
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            try
             {
-                await conn.OpenAsync();
-
-                string commandString = "INSERT INTO rental_information (current_date, customer_id, equipment_id, rental_date, return_date) VALUES (@CurrentDate, @CustomerId, @EquipmentId, @RentalDate, @ReturnDate)";
-
-                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
-                    cmd.Parameters.AddWithValue("@CurrentDate", rentalData[0]);
-                    cmd.Parameters.AddWithValue("@CustomerId", rentalData[1]);
-                    cmd.Parameters.AddWithValue("@EquipmentId", rentalData[2]);
-                    cmd.Parameters.AddWithValue("@RentalDate", rentalData[3]);
-                    cmd.Parameters.AddWithValue("@ReturnDate", rentalData[4]);
+                    await conn.OpenAsync();
 
-                    await cmd.ExecuteNonQueryAsync();
+                    string additionalColumn = String.Empty;
+                    string additionalParam = String.Empty;
+
+                    if (rentalData.Count == 6) //no id and use auto increment
+                    {
+                        additionalColumn = "";
+                        additionalParam = "";
+                    } else
+                    {
+                        additionalColumn = "rental_id,";
+                        additionalParam = "@rentalid,";
+                    }
+
+                    string commandString = $"INSERT INTO rental_information ({additionalColumn} `current_date`, customer_id, equipment_id, rental_date, return_date, cost) VALUES ({additionalParam} @CurrentDate, @CustomerId, @EquipmentId, @RentalDate, @ReturnDate, @cost);";
+
+                    using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                    {
+                        int moveIndex = 0;
+
+                        if (rentalData.Count == 7)
+                        {
+                            moveIndex = 1;
+                            cmd.Parameters.AddWithValue("@rentalid", rentalData[0]);
+                        } 
+
+                        cmd.Parameters.AddWithValue("@CurrentDate", rentalData[0 + moveIndex]);
+                        cmd.Parameters.AddWithValue("@CustomerId", rentalData[1 + moveIndex]);
+                        cmd.Parameters.AddWithValue("@EquipmentId", rentalData[2 + moveIndex]);
+                        cmd.Parameters.AddWithValue("@RentalDate", rentalData[3 + moveIndex]);
+                        cmd.Parameters.AddWithValue("@ReturnDate", rentalData[4 + moveIndex]);
+                        cmd.Parameters.AddWithValue("@cost", rentalData[5 + moveIndex]);
+
+                        string cmdString = BuildQueryString(cmd);
+
+                        await cmd.ExecuteNonQueryAsync();
+                    }
                 }
             }
+            catch (Exception ex) { }
+            
         }
 
 
