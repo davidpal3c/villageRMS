@@ -59,10 +59,12 @@
 
     <ItemGroup>
       <Content Remove="Components\Pages\CustomerModalAdd - Copy %282%29.razor" />
+      <Content Remove="Components\Pages\ReportPages\ReportSalesByCustomer.razor" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Blazor.Bootstrap" Version="2.2.0" />
+        <PackageReference Include="EPPlus" Version="7.2.2" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
@@ -72,10 +74,16 @@
 
     <ItemGroup>
       <UpToDateCheckInput Remove="Components\Pages\CategoryModalAdd.razor" />
+      <UpToDateCheckInput Remove="Components\Pages\ReportPages\ReportSalesByCustomer.razor" />
     </ItemGroup>
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Components\Pages\CategoryModalAdd.razor" />
+      <_ContentIncludedByDefault Remove="Components\Pages\ReportPages\ReportSalesByCustomer.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="Components\Pages\ReportPages\ReportSalesByCustomer.razor" />
     </ItemGroup>
 
 </Project>

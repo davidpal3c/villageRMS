@@ -1,0 +1,131 @@
+﻿@page "/ReportSalesByCustomer"
+@using VillageRMS.Models
+@inject Services.DatabaseService DatabaseService
+
+<h3>Sales By Customer</h3>
+
+<div class="form-group mb-3">
+    <label for="customerFilter">Customer Filter</label>
+    <select class="form-select" id="customerFilter" @onchange="HandleFilterOnChange">
+        <option value="">All Customers</option>
+        @foreach (var c in custLookup)
+        {
+            <option value="@c.CustomerId">@c.LastName , @c.FirstName</option>
+        }
+    </select>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <td>Rental Id</td>
+            <td>Date</td>
+            <td>Last Name</td>
+            <td>First Name</td>
+            <td>Equipment</td>
+            <td>Rental Date</td>
+            <td>Return Date</td>
+            <td>Cost</td>
+        </tr>
+    </thead>
+    <tbody>
+        @if (rentalInformationList != null && rentalInformationList.Count > 0)
+        {
+            @foreach (Rental rental in rentalInformationList)
+            {
+                <tr>
+                    <td>@rental.RentalId</td>
+                    <td>@rental.RecordDate.ToString("d")</td>
+                    <td>@getCustomerFromLookup(rental.CustomerId)?.LastName</td>
+                    <td>@getCustomerFromLookup(rental.CustomerId)?.FirstName</td>
+                    <td>@getEquipmentFromLookup(rental.EquipmentId)?.Name</td>
+                    <td>@rental.RentalDate.ToString("d")</td>
+                    <td>@rental.ReturnDate.ToString("d")</td>
+                    <td class="text-end">@rental.Cost.ToString("C")</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8">Nothing to load or still loading.</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="8" class="text-end">
+                <h5 class="mt-3">Total: @Totals.ToString("C")</h5>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+<p>@statusMsg</p>
+
+@code {
+    private List<Rental> rentalInformationList = new List<Rental>();
+    private List<Models.RentalEquipment> equipmentLookup = new List<Models.RentalEquipment>();
+    private List<Customer> custLookup = new List<Customer>();
+    string statusMsg = String.Empty;
+    private double Totals = 0.0;
+    private int selectedCustomer;
+
+    private Customer? getCustomerFromLookup(int id)
+    {
+        return custLookup.FirstOrDefault(c => c.CustomerId == id);
+    }
+
+    private Models.RentalEquipment? getEquipmentFromLookup(int id)
+    {
+        return equipmentLookup.FirstOrDefault(e => e.EquipmentId == id);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await RefreshList(null);
+        }
+        catch (Exception e)
+        {
+            statusMsg = "A problem has occurred while retrieving data.";
+        }
+    }
+
+    protected async Task RefreshList(int? filter)
+    {
+        statusMsg = String.Empty;
+        try
+        {
+            if (filter.HasValue)
+            {
+                rentalInformationList = await DatabaseService.GetRentalInformationAsync(filter.Value);
+            }
+            else
+            {
+                rentalInformationList = await DatabaseService.GetRentalInformationAsync();
+            }
+            int? catId = null;
+            equipmentLookup = await DatabaseService.GetEquipmentAsync(catId);
+            custLookup = await DatabaseService.GetCustomers();
+            Totals = rentalInformationList.Sum(r => r.Cost);
+        }
+        catch (Exception e)
+        {
+            statusMsg = "A problem has occurred while retrieving data.";
+        }
+    }
+
+    protected async Task HandleFilterOnChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value.ToString(), out var custId))
+        {
+            await RefreshList(custId);
+        }
+        else
+        {
+            await RefreshList(null);
+        }
+        StateHasChanged();  // Ensure the UI updates after data is fetched
+    }
+}
