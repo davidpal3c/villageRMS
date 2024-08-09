@@ -75,46 +75,27 @@ namespace VillageRMS.Services
 
         public async Task AddNewCustomer(List<string> customerData)
         {
-            //if (customerData == null || customerData.Count != 4)
-            //    throw new ArgumentException("Invalid customer data");
-            if (customerData == null || !(customerData.Count == 5 || customerData.Count == 4))
+            if (customerData == null || !(customerData.Count == 6))
                 throw new ArgumentException("Invalid customer data");
 
             string additionalColumn = String.Empty;
             string additionalParam = String.Empty;
 
-            if (customerData.Count == 4) //no id and use auto increment
-            {
-                additionalColumn = "";
-                additionalParam = "";
-            }
-            else
-            {
-                additionalColumn = "CustomerID,";
-                additionalParam = "@custID,";
-            }
-
             using (MySqlConnection conn = new MySqlConnection(_connectionString))
             {
                 await conn.OpenAsync();
 
-                string commandString = $"INSERT INTO Customer ( LastName, FirstName, ContactPhone, Email, Notes) VALUES ( @LastName, @FirstName, @ContactPhone, @Email, @Notes);";
+                string commandString = $"INSERT INTO Customer (CustomerID, LastName, FirstName, ContactPhone, Email, Notes) VALUES (@custID, @LastName, @FirstName, @ContactPhone, @Email, @Notes);";
 
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {
-                    int moveIndex = 0;
+                    cmd.Parameters.AddWithValue("@custID", customerData[0]);
+                    cmd.Parameters.AddWithValue("@LastName", customerData[1]);
+                    cmd.Parameters.AddWithValue("@FirstName", customerData[2]);
+                    cmd.Parameters.AddWithValue("@ContactPhone", customerData[3]);
+                    cmd.Parameters.AddWithValue("@Email", customerData[4]);
+                    cmd.Parameters.AddWithValue("@Notes", customerData[5]);
 
-                    if (customerData.Count == 5)
-                    {
-                        moveIndex = 0;
-                        
-                    }
-                    //cmd.Parameters.AddWithValue("@custID", customerData[0]);
-                    cmd.Parameters.AddWithValue("@LastName", customerData[0]);
-                    cmd.Parameters.AddWithValue("@FirstName", customerData[1]);
-                    cmd.Parameters.AddWithValue("@ContactPhone", customerData[2]);
-                    cmd.Parameters.AddWithValue("@Email", customerData[3]);
-                    cmd.Parameters.AddWithValue("@Notes", customerData[4]);
                     string cmdString = BuildQueryString(cmd);
 
                     await cmd.ExecuteNonQueryAsync();
@@ -521,7 +502,7 @@ namespace VillageRMS.Services
         }
 
             //for debuggin only
-            private string BuildQueryString(MySqlCommand cmd)
+        private string BuildQueryString(MySqlCommand cmd)
         {
             string query = cmd.CommandText;
             foreach (MySqlParameter param in cmd.Parameters)
@@ -629,7 +610,7 @@ namespace VillageRMS.Services
                     }
 
 
-                    string commandString = $"INSERT INTO rental_info ({additionalColumn} currentdate, customer_id, equipment_id, rental_date, return_date, cost) VALUES ({additionalParam} @CurrentDate, @CustomerId, @EquipmentId, @RentalDate, @ReturnDate, @cost);";
+                    string commandString = $"INSERT INTO rental_info ({additionalColumn} currentdate, customer_id, equipment_id, rental_date, return_date, cost) VALUES ({additionalParam} @CurrentDate, @CustomerId, @EquipmentId, @RentalDate, @ReturnDate, @Cost);";
 
                     using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                     {
@@ -739,9 +720,49 @@ namespace VillageRMS.Services
 
             return result;
         }
+
+        public async Task<int> GetNextIdAsync(string table, string idcol)
+        {
+            int result = 0;
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+
+                    string commandString = $"SELECT MAX({idcol}) AS NextId from {table};";
+
+                    using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                    {
+                        string finalCommand = BuildQueryString(cmd);
+
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+
+                                int myOrdinal = reader.GetOrdinal("NextId");
+
+                                if (reader.IsDBNull(myOrdinal))
+                                {
+                                    result = 0; //handle empty table
+                                }
+                                else
+                                {
+                                    result = reader.GetInt32("NextId");
+                                }
+
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ex) { }
+
+            return result + 1; //increment by 1
+        }
+        
     }
 
-    
 }
 
 

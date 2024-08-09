@@ -178,11 +178,11 @@
                             }
                             catch (MySqlException ex)
                             {
-                                
+
                             }
                             catch (Exception ex)
                             {
-                                
+
                             }
                             logs.Add($"adding: {equipParams[0]} {equipParams[1]} {equipParams[2]} {equipParams[3]} {equipParams[4]}");
                         }
@@ -214,6 +214,7 @@
                             //insert
                             try
                             {
+                                custParams.Add(""); //empty notes
                                 await DatabaseService.AddNewCustomer(custParams);
                             }
                             catch (MySqlException ex)
