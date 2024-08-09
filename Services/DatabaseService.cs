@@ -629,7 +629,7 @@ namespace VillageRMS.Services
                     }
 
 
-                    string commandString = $"INSERT INTO rental_information ({additionalColumn} `current_date`, customer_id, equipment_id, rental_date, return_date, cost) VALUES ({additionalParam} @CurrentDate, @CustomerId, @EquipmentId, @RentalDate, @ReturnDate, @cost);";
+                    string commandString = $"INSERT INTO rental_info ({additionalColumn} currentdate, customer_id, equipment_id, rental_date, return_date, cost) VALUES ({additionalParam} @CurrentDate, @CustomerId, @EquipmentId, @RentalDate, @ReturnDate, @cost);";
 
                     using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                     {
