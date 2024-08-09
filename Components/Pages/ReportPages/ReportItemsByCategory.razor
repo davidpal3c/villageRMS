@@ -1,0 +1,119 @@
+﻿@page "/ReportItemsByCategory"
+@using VillageRMS.Models
+@inject Services.DatabaseService DatabaseService
+
+<h3>Items By Category</h3>
+
+<div class="form-group mb-3">
+    <label for="categoryFilter">Category Filter</label>
+    <select class="form-select" id="categoryFilter" @onchange="HandleFilterOnChange">
+        <option value="">All Equipment</option>
+        @foreach (var c in catLookup)
+        {
+            <option value="@c.CategoryId">@c.CategoryDescription</option>
+        }
+    </select>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <td>Equipment Id</td>
+            <td>Category</td>
+            <td>Name</td>
+            <td>Description</td>
+            <td>Daily Rate</td>
+        </tr>
+    </thead>
+    <tbody>
+        @if (equipmentList != null && equipmentList.Count > 0)
+        {
+            @foreach (RentalEquipment equip in equipmentList)
+            {
+                <tr>
+                    <td>@equip.EquipmentId</td>
+                    <td>@getCategoryFromLookup(equip.CategoryId)?.CategoryDescription</td>
+                    <td>@equip.Name</td>
+                    <td>@equip.Description</td>
+                    <td>@equip.Daily_rental_cost.ToString("C")</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8">Nothing to load or still loading.</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="8" class="text-end">
+                
+            </td>
+        </tr>
+    </tfoot>
+</table>
+<p>@statusMsg</p>
+
+@code {
+    private List<RentalEquipment> equipmentList = new List<RentalEquipment>();
+    private List<Models.RentalEquipment> equipmentLookup = new List<Models.RentalEquipment>();
+    private List<RentalCategory> catLookup = new List<RentalCategory>();
+    string statusMsg = String.Empty;
+    //private int selectedCategory;
+
+    private RentalCategory? getCategoryFromLookup(int id)
+    {
+        return catLookup.FirstOrDefault(c => c.CategoryId == id);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await RefreshList(null);
+        }
+        catch (Exception e)
+        {
+            statusMsg = "A problem has occurred while retrieving data.";
+        }
+    }
+
+    protected async Task RefreshList(int? filter)
+    {
+        statusMsg = String.Empty;
+        try
+        {
+            if (filter.HasValue)
+            {
+                equipmentList = await DatabaseService.GetEquipmentAsync(filter.Value);
+            }
+            else
+            {
+                int? catId = null;
+                equipmentList = await DatabaseService.GetEquipmentAsync(catId);
+            }
+
+            catLookup = await DatabaseService.GetCategories();
+            
+        }
+        catch (Exception e)
+        {
+            statusMsg = "A problem has occurred while retrieving data.";
+        }
+    }
+
+    protected async Task HandleFilterOnChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value.ToString(), out var catId))
+        {
+            await RefreshList(catId);
+        }
+        else
+        {
+            await RefreshList(null);
+        }
+        StateHasChanged();  // Ensure the UI updates after data is fetched
+    }
+}
