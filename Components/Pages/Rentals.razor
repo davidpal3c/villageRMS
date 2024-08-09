@@ -58,9 +58,32 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (Rental rental in rentals_list)
+            @if(filteredData.Count > 0)
+            {
+            @foreach (Rental search in filteredData)
             {
                 <tr>
+                    <td>@search.RentalId</td>
+                    <td>@search.CurrentDate</td>
+                    <td>@search.CustomerName</td>
+                    <td>@search.EquipmentName</td>
+                    <td>@search.RentalDate</td>
+                    <td>@search.ReturnDate</td>
+                    <td>@search.Cost</td>
+                    <td>
+                        <button type="submit" class="btn btn-primary" @onclick="() => ShowRentalUpdateModal(search)">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                    </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                @foreach (Rental rental in rentals_list)
+                {
+                    <tr>
                     <td>@rental.RentalId</td>
                     <td>@rental.CurrentDate</td>
                     <td>@rental.CustomerName</td>
@@ -72,10 +95,10 @@ else
                         <button type="submit" class="btn btn-primary" @onclick="() => ShowRentalUpdateModal(rental)">
                             <i class="bi bi-pencil-square"></i>
                         </button>
-                     
                     </td>
-                </tr>
-            }
+                    </tr>
+                }
+                }
         </tbody>
     </table>
 }
@@ -88,9 +111,9 @@ else
 
     private string msg = String.Empty;
 
-    private List<Rental>? filteredData = new List<Models.Rental>();
+    private List<Rental> filteredData = new List<Models.Rental>();
     private List<Rental>? result = new List<Rental>();
-  
+    private string? searchStr;
     private string? name;
 
 
@@ -124,25 +147,27 @@ else
         }
 
 
+        result = new List<Models.Rental>();
 
-        foreach(Models.Rental rental in rentals_list)
+
+        foreach (Models.Rental rental in rentals_list)
         {
             bool match = true;
-            /*
-            if (!string.IsNullOrEmpty(name) &&
-                !(rental.FirstName.Contains(name, StringComparison.OrdinalIgnoreCase) ||
-                  rental.LastName.Contains(name, StringComparison.OrdinalIgnoreCase)))
-                {
+
+            if (!string.IsNullOrEmpty(searchStr) &&
+                !(rental.CustomerName.Contains(searchStr, StringComparison.OrdinalIgnoreCase) ||
+                rental.EquipmentName.Contains(searchStr, StringComparison.OrdinalIgnoreCase)))
+            {
                 match = false;
             }
-            */
+
             if (match)
             {
                 result.Add(rental);
             }
-            filteredData = result;
-        }
 
+        }
+        filteredData = result;
     }
 
     private async Task RefreshList()
