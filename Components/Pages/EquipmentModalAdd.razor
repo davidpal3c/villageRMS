@@ -1,14 +1,20 @@
-﻿
-
+﻿@using VillageRMS.Models
 
 <!-- Add New Rental Equipment -->
 <div class="form-group">
     <label class="form-label mt-2" for="nm">Equipment Name</label>
-    <input type="text" @bind="_name" class="form-control"/>
+    <input type="text" @bind="_name" class="form-control" id="nm"/>
 </div>
+
 <div class="form-group">
-    <label class="form-label mt-2" for="cat">CategoryId</label>
-    <input type="text" @bind="_category" class="form-control"/>
+    <label class="form-label mt-2" for="deptSelector">Category</label>
+    <select class="form-select" id="deptSelector" @onchange="HandleCategoryChange">
+        <option value="">Category</option>
+        @foreach (var c in CategoryLookup)
+        {
+            <option value="@c.CategoryId">@c.CategoryDescription</option>
+        }
+    </select>
 </div>
 <div class="form-group">
     <label class="form-label mt-2" for="desc">Description</label>
@@ -25,17 +31,16 @@
 
 @code {
     [Parameter] public EventCallback<List<object>> OnClickCallback { get; set; }
+    [Parameter] public List<RentalCategory> CategoryLookup { get; set; }
 
     private string? _name;
-    private string? _category;
+    private int? _category;
     private string? _description;
 
     private string? _dailyCost;
     private double? _dailyCostDouble;
 
     private List<object> returnVal { get; set; } = new List<object>();
-
-
 
     protected override void OnInitialized()
     {
@@ -49,16 +54,16 @@
             returnVal.Clear();
 
             if (!string.IsNullOrEmpty(_name)) returnVal.Add(_name);
-            if (double.TryParse(_category, out double _categoryInt))
+
+            if (_category != null)
             {
-                returnVal.Add(_categoryInt);
-            }
-            else
+                returnVal.Add(_category);
+            } else
             {
-                throw new Exception("Invalid daily cost format.");
+                return; // when error, return do nothing
             }
 
-             
+
             if (!string.IsNullOrEmpty(_description)) returnVal.Add(_description);
             if (double.TryParse(_dailyCost, out double _dailyCostDouble))
             {
@@ -66,10 +71,10 @@
             }
             else
             {
-                throw new Exception("Invalid daily cost format.");
+                return; // when error, return do nothing
             }
-            
-            
+
+
             await OnClickCallback.InvokeAsync(returnVal);
 
         }
@@ -77,6 +82,18 @@
         {
             throw new Exception(ex.Message);
         }
-        
+
+    }
+
+    private void HandleCategoryChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var catId))
+        {
+            _category = catId;
+        }
+        else
+        {
+            // not int
+        }
     }
 }

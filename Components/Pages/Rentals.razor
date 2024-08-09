@@ -43,7 +43,7 @@ else
     </div>
 
     <Modal @ref="modal" />
-    
+
     <table class="table new-table">
         <thead>
             <tr class="thead-tr">
@@ -249,6 +249,7 @@ else
         {
 
             testMsg = $"Rental information (RentalID: {updatedRental.RentalId}) updated successfully";
+
             await DatabaseService.UpdateRental(updatedRental);
             await RefreshList();
             await modal.HideAsync();

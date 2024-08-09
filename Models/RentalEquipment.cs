@@ -12,10 +12,11 @@ namespace VillageRMS.Models
     public class RentalEquipment
     {
         private int _equipmentId;
-        public RentalCategory _category;
+        //private RentalCategory _category;
         private string _name;
         private string _description;
         private double _dailyRentalCost;
+        private int _categoryId;
 
         public int EquipmentId
         {
@@ -26,6 +27,7 @@ namespace VillageRMS.Models
         [Required(ErrorMessage = "CategoryID required")]
         public int CategoryId
         {
+            /*
             get => _category?.CategoryId ?? 0;
             set
             {
@@ -34,13 +36,17 @@ namespace VillageRMS.Models
                     LoadCategoryById(value).ConfigureAwait(false);
                 }
             }
+            */
+            get => _categoryId;
+            set { _categoryId = value; }
         }
 
+        /*
         [Required(ErrorMessage = "CategoryDescription required")]
         public string CategoryDescription
         {
             get => _category?.CategoryDescription ?? string.Empty;
-        }
+        }*/
 
         [Required(ErrorMessage = "Equipment Name required")]
         [StringLength(50, ErrorMessage = "Name cannot exceed 50 characters")]
@@ -83,11 +89,10 @@ namespace VillageRMS.Models
         }
 
 
-        public async Task LoadCategoryById(int categoryId)
+        /*public async Task LoadCategoryById(int categoryId)
         {
-            _category = await RentalService.LoadCategoryByIdAsync(categoryId);
-        }
+            _category = await DatabaseService.LoadCategoryByIdAsync(categoryId);
+        }*/
 
-        
     }
 }
