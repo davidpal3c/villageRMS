@@ -25,10 +25,10 @@ namespace VillageRMS.Models
 
         public Customer() { }
 
-        public Customer(string lastName, string firstName, string phoneNumber, string emailAddress, int customerId, string status) : base(lastName, firstName, phoneNumber, emailAddress)
+        public Customer(int customerId, string lastName, string firstName, string phoneNumber, string emailAddress,  string status, string notes) : base(lastName, firstName, phoneNumber, emailAddress, notes)
         {
             this._customerId = customerId;
-            this._status = status;
+            this._status = status;            
         }
 
 

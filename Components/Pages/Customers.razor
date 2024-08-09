@@ -50,6 +50,7 @@ else
                 <th>Name</th>
                 <th>Phone</th>
                 <th>Email</th>
+                <th>Notes</th>
                 <th>Status</th>
                 <th>Edit/Delete</th>
             </tr>
@@ -65,6 +66,7 @@ else
                         <td>@c.LastName , @c.FirstName</td>
                         <td>@c.PhoneNumber</td>
                         <td><a href="mailto:@c.EmailAddress">@c.EmailAddress</a></td>
+                        <td>@c.Notes</td>
                         <td>@c.Status</td>
                         <td>
                             <button type="submit" class="btn btn-primary" @onclick="() => ShowCustomerUpdateModal(c)">
@@ -87,6 +89,7 @@ else
                         <td>@c.LastName , @c.FirstName</td>
                         <td>@c.PhoneNumber</td>
                         <td><a href="mailto:@c.EmailAddress">@c.EmailAddress</a></td>
+                        <td>@c.Notes</td>
                         <td>@c.Status</td>
                         <td>
                             <button type="submit" class="btn btn-primary" @onclick="() => ShowCustomerUpdateModal(c)">
