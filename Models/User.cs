@@ -13,7 +13,7 @@ namespace VillageRMS.Models
         private string _firstName;
         private string _phoneNumber;
         private string _emailAddress;
-        private string _status;
+        private string _notes;
 
         [Required(ErrorMessage = "Last name is required")]
         [StringLength(50, ErrorMessage = "Last name cannot exceed 50 characters")]
@@ -48,14 +48,23 @@ namespace VillageRMS.Models
             set { _emailAddress = value; }
         }
 
+        //[Required(ErrorMessage = "Email is required")]
+        //[EmailAddress(ErrorMessage = "Invalid email address")]
+        public string Notes
+        {
+            get { return _notes; }
+            set { _notes = value; }
+        }
+
         public User() { }
 
-        public User(string lastName, string firstName, string phoneNumber, string emailAddress)
+        public User(string lastName, string firstName, string phoneNumber, string emailAddress, string notes)
         {
             _lastName = lastName;
             _firstName = firstName;
             _phoneNumber = phoneNumber;
             _emailAddress = emailAddress;
+            _notes = notes;
         }
 
         public abstract override string ToString();

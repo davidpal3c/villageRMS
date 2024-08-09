@@ -24,6 +24,7 @@ namespace VillageRMS.Services
                     PhoneNumber = reader.GetString("ContactPhone"),
                     EmailAddress = reader.GetString("Email"),
                     Status = reader.GetString("Status"),
+                    Notes = reader.GetString("Notes")
                 };
             }
             catch (Exception ex) 

@@ -98,7 +98,7 @@ namespace VillageRMS.Services
             {
                 await conn.OpenAsync();
 
-                string commandString = $"INSERT INTO Customer ({additionalColumn} LastName, FirstName, ContactPhone, Email) VALUES ({additionalParam} @LastName, @FirstName, @ContactPhone, @Email);";
+                string commandString = $"INSERT INTO Customer ( LastName, FirstName, ContactPhone, Email, Notes) VALUES ( @LastName, @FirstName, @ContactPhone, @Email, @Notes);";
 
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {
@@ -106,16 +106,15 @@ namespace VillageRMS.Services
 
                     if (customerData.Count == 5)
                     {
-                        moveIndex = 1;
-                        cmd.Parameters.AddWithValue("@custID", customerData[0]);
+                        moveIndex = 0;
+                        
                     }
-
-
-                    cmd.Parameters.AddWithValue("@LastName", customerData[0 + moveIndex]);
-                    cmd.Parameters.AddWithValue("@FirstName", customerData[1 + moveIndex]);
-                    cmd.Parameters.AddWithValue("@ContactPhone", customerData[2 + moveIndex]);
-                    cmd.Parameters.AddWithValue("@Email", customerData[3 + moveIndex]);
-
+                    //cmd.Parameters.AddWithValue("@custID", customerData[0]);
+                    cmd.Parameters.AddWithValue("@LastName", customerData[0]);
+                    cmd.Parameters.AddWithValue("@FirstName", customerData[1]);
+                    cmd.Parameters.AddWithValue("@ContactPhone", customerData[2]);
+                    cmd.Parameters.AddWithValue("@Email", customerData[3]);
+                    cmd.Parameters.AddWithValue("@Notes", customerData[4]);
                     string cmdString = BuildQueryString(cmd);
 
                     await cmd.ExecuteNonQueryAsync();
@@ -130,7 +129,7 @@ namespace VillageRMS.Services
             {
                 await conn.OpenAsync();
 
-                string commandString = "UPDATE Customer SET LastName = @Lastname, FirstName = @FirstName, ContactPhone = @ContactPhone, Email = @Email, Status = @Status WHERE CustomerID = @CustomerId";
+                string commandString = "UPDATE Customer SET LastName = @Lastname, FirstName = @FirstName, ContactPhone = @ContactPhone, Email = @Email, Status = @Status, Notes = @Notes  WHERE CustomerID = @CustomerId";
 
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {
@@ -139,6 +138,7 @@ namespace VillageRMS.Services
                     cmd.Parameters.AddWithValue("@ContactPhone", updatedCustomer.PhoneNumber);
                     cmd.Parameters.AddWithValue("@Email", updatedCustomer.EmailAddress);
                     cmd.Parameters.AddWithValue("@Status", updatedCustomer.Status);
+                    cmd.Parameters.AddWithValue("@Notes", updatedCustomer.Notes);
                     cmd.Parameters.AddWithValue("@CustomerId", updatedCustomer.CustomerId);
 
                     await cmd.ExecuteNonQueryAsync();

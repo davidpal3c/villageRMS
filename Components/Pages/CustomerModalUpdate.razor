@@ -37,6 +37,12 @@
     </div>
 
     <div class="form-group">
+        <label class="form-label mt-2" for="notes">Notes</label>
+        <InputText @bind-Value="customer.Notes" class="form-control" id="notes" />
+        <ValidationMessage For="@(() => customer.Notes)" />
+    </div>
+
+    <div class="form-group">
         <label class="form-label mt-2" for="status">Status</label>
         <InputText @bind-Value="customer.Status" class="form-control" id="status" />
         <ValidationMessage For="@(() => customer.Status)" />

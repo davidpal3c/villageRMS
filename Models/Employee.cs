@@ -26,7 +26,7 @@ namespace VillageRMS.Models
             set { _isAdmin = value; }
         }
 
-        public Employee(string lastName, string firstName, string phoneNumber, string emailAddress, int employeeId, bool isAdmin) : base(lastName, firstName, phoneNumber, emailAddress)
+        public Employee(string lastName, string firstName, string phoneNumber, string emailAddress, int employeeId, bool isAdmin, string notes) : base(lastName, firstName, phoneNumber, emailAddress, notes)
         {
             this._employeeId = _employeeId;
             this._isAdmin = _isAdmin;
