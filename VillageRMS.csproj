@@ -73,10 +73,12 @@
     </ItemGroup>
 
     <ItemGroup>
+      <UpToDateCheckInput Remove="Components\Pages\CategoryModalAdd.razor" />
       <UpToDateCheckInput Remove="Components\Pages\ReportPages\ReportSalesByCustomer.razor" />
     </ItemGroup>
 
     <ItemGroup>
+      <_ContentIncludedByDefault Remove="Components\Pages\CategoryModalAdd.razor" />
       <_ContentIncludedByDefault Remove="Components\Pages\ReportPages\ReportSalesByCustomer.razor" />
     </ItemGroup>
 

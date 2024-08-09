@@ -1,23 +1,49 @@
-﻿<!-- Add New Rental -->
+﻿@using Models
+@inject Services.DatabaseService DatabaseService
+
+
+<!-- Add New Rental -->
 <div class="form-group">
     <label class="form-label mt-2" for="currentdate">Current Date</label>
-    <input type="text" @bind="_currentDate" class="form-control" id="currentdate" />
+    <input type="date" @bind="_currentDate" class="form-control" id="currentdate" />
 </div>
+
 <div class="form-group">
     <label class="form-label mt-2" for="customer">Customer</label>
-    <input type="number" @bind="_customerId" class="form-control" id="customer" />
+    <select class="form-control" @bind="_customerId" placeholder="Select a customer" id="customer">
+        <option>Select Customer</option>
+        @foreach (Customer c in customerOptions)
+        {
+            
+            <option value="@c.CustomerId">@c.FirstName @c.LastName</option>
+        }
+    </select>
 </div>
+
 <div class="form-group">
     <label class="form-label mt-2" for="equipment">Equipment</label>
-    <input type="number" @bind="_equipmentId" class="form-control" id="equipment" />
+    <select class="form-control" @bind="_equipmentId" placeholder="Select Equipment" id="equipment">
+        <option>Select Equipment</option>
+        @foreach(RentalEquipment re in equipmentOptions)
+        {
+            <option value="@re.EquipmentId">@re.Name</option>
+        }
+    </select>
 </div>
+
 <div class="form-group">
     <label class="form-label mt-2" for="rentaldate">Rental Date</label>
-    <input type="text" @bind="_rentalDate" form-control" id="rentaldate" />
+    <input type="date" @bind="_rentalDate" class="form-control" id="rentaldate" />
 </div>
+
 <div class="form-group">
     <label class="form-label mt-2" for="returndate">Return Date</label>
-    <input type="text" @bind="_returnDate" class="form-control" id="returndate" />
+    <input type="date" @bind="_returnDate" class="form-control" id="returndate" />
+</div>
+
+<div class="form-group">
+    <label class="form-label mt-2" for="cost">Cost</label>
+    <input type="number" step=".01" @bind="_cost" class="form-control" id="cost" />
 </div>
 
 <Button class="mt-3 btn btn-primary" Type="ButtonType.Button" @onclick="HandleClick">
@@ -29,17 +55,27 @@
 @code {
 
     [Parameter] public EventCallback<List<object>> OnClickCallback { get; set; }
-
-    private DateTime? _currentDate;
+    private List<Customer> customerOptions = new List<Customer>();
+    private List<Models.RentalEquipment> equipmentOptions = new List<RentalEquipment>();
+    private string? testMsg;
+    private DateOnly? _currentDate;
     private int? _customerId;
     private int? _equipmentId;
-    private DateTime? _rentalDate;
-    private DateTime? _returnDate;
+    private double? _cost;
+    private DateOnly? _rentalDate;
+    private DateOnly? _returnDate;
     private List<object> returnVal { get; set; } = new List<object>();
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CustomerOptions();
+        await EquipmentOptions();
     }
 
     private async Task HandleClick()
@@ -50,7 +86,35 @@
         if (_equipmentId != null) returnVal.Add(_equipmentId);
         if (_rentalDate != null) returnVal.Add(_rentalDate);
         if (_returnDate != null) returnVal.Add(_returnDate);
+        if (_cost != null) returnVal.Add(_cost);
 
         await OnClickCallback.InvokeAsync(returnVal);
+    }
+
+    private async Task CustomerOptions()
+    {
+        try
+        {
+            customerOptions = await DatabaseService.GetCustomers();
+            testMsg = "test";
+
+        }
+        catch (Exception e)
+        {
+            testMsg = $"Error loading options: {e.Message}";
+        }
+    }
+
+    private async Task EquipmentOptions()
+    {
+        try
+        {
+            equipmentOptions = await DatabaseService.GetRentalEquipment();
+
+        }
+        catch (Exception e)
+        {
+            testMsg = $"Error loading options: {e.Message}";
+        }
     }
 }
