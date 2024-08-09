@@ -435,10 +435,10 @@ namespace VillageRMS.Services
         {
             List<Rental> rentals = new List<Rental>();
 
-            string query = "SELECT * FROM `rental_information` ";
+            string query = "SELECT * FROM rental_info ";
             if (filter.HasValue)
             {
-                query += "WHERE `current_date` = @date";
+                query += "WHERE DATE(currentdate) = @date";
             }
 
             try
@@ -480,7 +480,7 @@ namespace VillageRMS.Services
         {
             List<Rental> rentals = new List<Rental>();
 
-            string query = "SELECT * FROM `rental_information` ";
+            string query = "SELECT * FROM rental_info ";
             if (customerId.HasValue)
             {
                 query += "WHERE `customer_id` = @custid";
