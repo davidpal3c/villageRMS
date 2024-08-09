@@ -35,7 +35,7 @@
             {
                 <tr>
                     <td>@rental.RentalId</td>
-                    <td>@rental.RecordDate.ToString("d")</td>
+                    <td>@rental.CurrentDate.ToString("d")</td>
                     <td>@getCustomerFromLookup(rental.CustomerId)?.LastName</td>
                     <td>@getCustomerFromLookup(rental.CustomerId)?.FirstName</td>
                     <td>@getEquipmentFromLookup(rental.EquipmentId)?.Name</td>

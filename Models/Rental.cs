@@ -77,7 +77,7 @@ namespace VillageRMS.Models
         public Rental(int rentalId, DateTime currentDate, int customerId, string customerName, int equipmentId, string equipmentName, DateTime rentalDate, DateTime returnDate, double cost)
         {
             RentalId = rentalId;
-            RecordDate = recordDate;
+            CurrentDate = currentDate;
             CustomerId = customerId;
             CustomerName = customerName;
             EquipmentId = equipmentId;
