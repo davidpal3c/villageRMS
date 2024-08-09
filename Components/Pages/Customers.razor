@@ -24,7 +24,7 @@ else
     <div class="nav-header"> 
         <div>
             <form @onsubmit="FilterCustomers">
-                <input type="text" @bind="name" class="search-field" placeholder="Name"/>
+                <input type="search" @bind="name" class="search-field" placeholder="Search Customers" @bind:event="oninput" @bind:after="FilterCustomers" />
                 <button type="submit" class="btn btn-dark"><i class="bi bi-search"></i></button>
             </form>
         </div>

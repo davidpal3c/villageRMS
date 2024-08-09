@@ -1,6 +1,12 @@
 ﻿@using VillageRMS.Models
 
 <!-- Add New Rental Equipment -->
+
+<div class="form-group">
+    <label class="form-label mt-2" for="eid">Equipment Id</label>
+    <input type="number" @bind="_id" class="form-control" id="eid" />
+</div>
+
 <div class="form-group">
     <label class="form-label mt-2" for="nm">Equipment Name</label>
     <input type="text" @bind="_name" class="form-control" id="nm"/>
@@ -33,6 +39,7 @@
     [Parameter] public EventCallback<List<object>> OnClickCallback { get; set; }
     [Parameter] public List<RentalCategory> CategoryLookup { get; set; }
 
+    private int? _id;
     private string? _name;
     private int? _category;
     private string? _description;
@@ -53,7 +60,20 @@
         {           
             returnVal.Clear();
 
-            if (!string.IsNullOrEmpty(_name)) returnVal.Add(_name);
+
+            if (_id != null)
+            {
+                returnVal.Add(_id);
+            }
+            else
+            {
+                return; // when error, return do nothing
+            }
+
+
+            
+
+            
 
             if (_category != null)
             {
@@ -62,6 +82,8 @@
             {
                 return; // when error, return do nothing
             }
+
+            if (!string.IsNullOrEmpty(_name)) returnVal.Add(_name);
 
 
             if (!string.IsNullOrEmpty(_description)) returnVal.Add(_description);

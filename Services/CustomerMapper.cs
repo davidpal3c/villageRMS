@@ -65,9 +65,9 @@ namespace VillageRMS.Services
                     CustomerName = reader.GetString("customer_name"),
                     EquipmentId = reader.GetInt32("equipment_id"),
                     EquipmentName = reader.GetString("name"),
-                    CurrentDate = reader.GetDateTime("currentdate"),
-                    RentalDate = reader.GetDateTime("rental_date"),
-                    ReturnDate = reader.GetDateTime("return_date"),
+                    CurrentDate = reader.GetDateOnly("currentdate"),
+                    RentalDate = reader.GetDateOnly("rental_date"),
+                    ReturnDate = reader.GetDateOnly("return_date"),
                     Cost = reader.GetDouble("cost")
                 };
             }

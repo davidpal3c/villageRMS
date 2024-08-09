@@ -26,7 +26,7 @@ else
     <div class="nav-header">
         <div>
             <form @onsubmit="FilterEquipment">
-                <input type="text" @bind="searchStr" class="search-field" placeholder="Search" />
+                <input type="search" @bind="searchStr" class="search-field" placeholder="Search Equipment" @bind:event="oninput" @bind:after="FilterEquipment" />
                 <button type="submit" class="btn btn-dark"><i class="bi bi-search"></i></button>
             </form>
         </div>
@@ -274,7 +274,7 @@ else
             { "CategoryLookup", categoryLookup}
         };
 
-        await modal.ShowAsync<EquipmentModalUpdate>(title: "Update Customer", parameters: parameters);
+        await modal.ShowAsync<EquipmentModalUpdate>(title: "Update Equipment", parameters: parameters);
     }
 
 

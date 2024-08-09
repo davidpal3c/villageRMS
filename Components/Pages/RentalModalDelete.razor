@@ -10,21 +10,21 @@
                 <button type="button" class="btn-close" aria-label="Close" @onclick="CloseDeleteConfirmation"></button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete <strong>@Equipment.Name</strong>?</p>
+                <p>Are you sure you want to delete the rental record: <strong>@Rental.RentalId</strong>?</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" @onclick="CloseDeleteConfirmation">Cancel</button>
-                <button type="button" class="btn btn-danger" @onclick="ConfirmDeleteCustomer">Confirm</button>
+                <button type="button" class="btn btn-danger" @onclick="ConfirmDeleteRental">Confirm</button>
             </div>
         </div>
     </div>
 </div>
 
 @code {
-    [Parameter] public RentalEquipment Equipment { get; set; } = new RentalEquipment();
-    [Parameter] public EventCallback<(RentalEquipment Equipment, bool Confirmed)> OnClickCallback { get; set; }
+    [Parameter] public Rental Rental { get; set; } = new Rental();
+    [Parameter] public EventCallback<(Rental Rental, bool Confirmed)> OnClickCallback { get; set; }
 
-    private void ConfirmDeleteCustomer()
+    private void ConfirmDeleteRental()
     {
         HandleClick(true);
     }
@@ -36,6 +36,6 @@
 
     private async void HandleClick(bool confirmed)
     {
-        await OnClickCallback.InvokeAsync((Equipment, confirmed));
+        await OnClickCallback.InvokeAsync((Rental, confirmed));
     }
 }

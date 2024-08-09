@@ -24,7 +24,7 @@ else
     <div class="nav-header">
         <div>
             <form @onsubmit="FilterRentals">
-                <input type="text" @bind="name" class="search-field" placeholder="Search Rentals" />
+                <input type="search" @bind="searchStr" class="search-field" placeholder="Search Rentals" @bind:event="oninput" @bind:after="FilterRentals" />
                 <button type="submit" class="btn btn-dark"><i class="bi bi-search"></i></button>
             </form>
         </div>
@@ -75,6 +75,10 @@ else
                             <i class="bi bi-pencil-square"></i>
                         </button>
 
+                            <button type="submit" class="btn btn-danger" @onclick="() => ShowDeleteConfirmationModal(search)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+
                     </td>
                     </tr>
                 }
@@ -95,6 +99,10 @@ else
                         <button type="submit" class="btn btn-primary" @onclick="() => ShowRentalUpdateModal(rental)">
                             <i class="bi bi-pencil-square"></i>
                         </button>
+
+                            <button type="submit" class="btn btn-danger" @onclick="() => ShowDeleteConfirmationModal(rental)">
+                                <i class="bi bi-trash"></i>
+                            </button>
                     </td>
                     </tr>
                 }
@@ -143,7 +151,9 @@ else
     {
         if (rentals_list == null || !rentals_list.Any())
         {
+            testMsg = "nothing";
             return;
+
         }
 
 
@@ -257,6 +267,54 @@ else
         catch (Exception e)
         {
             testMsg = $"An error occurred: {e.Message}";
+        }
+    }
+
+
+    private async Task ShowDeleteConfirmationModal(Rental rental)
+    {
+        showDeleteConfirmation = true;
+
+        var parameters = new Dictionary<string, object>
+        {
+            { "Rental", rental },
+            { "OnClickCallback", EventCallback.Factory.Create<(Rental, bool)>(this, ConfirmCallbackDelete) }
+        };
+
+        await modal.ShowAsync<RentalModalDelete>(title: "Delete Rental", parameters: parameters);
+    }
+
+
+
+    private async Task ConfirmCallbackDelete((Rental rental, bool confirmed) args)
+    {
+        var (rental, confirmed) = args;
+
+        try
+        {
+
+            if (confirmed)
+            {
+                await DatabaseService.DeleteRental(rental);
+                testMsg = $"{rental.RentalId} deleted successfully";
+                await RefreshList();
+            }
+            else
+            {
+                testMsg = "Rental deletion was canceled.";
+                await RefreshList();
+            }
+
+            await modal.HideAsync();
+
+        }
+        catch (Exception e)
+        {
+            testMsg = $"An error occurred: {e.Message}";
+        }
+        finally
+        {
+            showDeleteConfirmation = false;
         }
     }
 

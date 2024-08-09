@@ -17,11 +17,11 @@ namespace VillageRMS.Services
                 return new Rental
                 {
                     RentalId = reader.GetInt32("rental_id"),
-                    CurrentDate = reader.GetDateTime("currentdate"),
+                    CurrentDate = reader.GetDateOnly("currentdate"),
                     CustomerId = reader.GetInt32("customer_id"),
                     EquipmentId = reader.GetInt32("equipment_id"),
-                    RentalDate = reader.GetDateTime("rental_date"),
-                    ReturnDate = reader.GetDateTime("return_date"),
+                    RentalDate = reader.GetDateOnly("rental_date"),
+                    ReturnDate = reader.GetDateOnly("return_date"),
                     Cost = reader.GetDouble("cost")
                 };
             }

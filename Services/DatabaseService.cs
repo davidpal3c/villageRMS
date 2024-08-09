@@ -555,22 +555,22 @@ namespace VillageRMS.Services
                     additionalParam = "@equipId,";
                 }
 
-                string commandString = $"INSERT INTO rental_equipment ({additionalColumn} category, name,  description, daily_rental_cost) VALUES ({additionalParam} @CategoryId, @Name, @Description, @DailyCost);";
+                string commandString = $"INSERT INTO rental_equipment (equipment_id, category, name,  description, daily_rental_cost) VALUES (@equipId, @CategoryId, @Name, @Description, @DailyCost);";
 
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {
-                    int moveIndex = 0;
+                    //int moveIndex = 0;
 
-                    if (equipmentData.Count == 5)
-                    {
-                        moveIndex = 1;
+                    //if (equipmentData.Count == 5)
+                    //{
+                        //moveIndex = 1;
                         cmd.Parameters.AddWithValue("@equipId", equipmentData[0]);
-                    }
+                    //}
 
-                    cmd.Parameters.AddWithValue("@CategoryId", equipmentData[0 + moveIndex]);
-                    cmd.Parameters.AddWithValue("@Name", equipmentData[1 + moveIndex]);
-                    cmd.Parameters.AddWithValue("@Description", equipmentData[2 + moveIndex]);
-                    cmd.Parameters.AddWithValue("@DailyCost", equipmentData[3 + moveIndex]);
+                    cmd.Parameters.AddWithValue("@CategoryId", equipmentData[1]);
+                    cmd.Parameters.AddWithValue("@Name", equipmentData[2]);
+                    cmd.Parameters.AddWithValue("@Description", equipmentData[3]);
+                    cmd.Parameters.AddWithValue("@DailyCost", equipmentData[4]);
 
                     string cmdString = BuildQueryString(cmd);
 
@@ -692,11 +692,11 @@ namespace VillageRMS.Services
 
                 using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
                 {
-                    cmd.Parameters.AddWithValue("@CurrentDate", rental.CurrentDate.ToString("yyyy-MM-dd hh:mm:ss"));
+                    cmd.Parameters.AddWithValue("@CurrentDate", rental.CurrentDate.ToString("yyyy-MM-dd"));
                     cmd.Parameters.AddWithValue("@CustomerId", rental.CustomerId);
                     cmd.Parameters.AddWithValue("@EquipmentId", rental.EquipmentId);
-                    cmd.Parameters.AddWithValue("@RentalDate", rental.RentalDate.ToString("yyyy-MM-dd hh:mm:ss"));
-                    cmd.Parameters.AddWithValue("@ReturnDate", rental.ReturnDate.ToString("yyyy-MM-dd hh:mm:ss"));
+                    cmd.Parameters.AddWithValue("@RentalDate", rental.RentalDate.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@ReturnDate", rental.ReturnDate.ToString("yyyy-MM-dd"));
                     cmd.Parameters.AddWithValue("@Cost", rental.Cost);
                     cmd.Parameters.AddWithValue("@RentalId", rental.RentalId);
 
@@ -704,6 +704,25 @@ namespace VillageRMS.Services
                 }
             }
                         
+        }
+
+
+        public async Task DeleteRental(Rental rental)
+        {
+
+            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                string commandString = "DELETE FROM rental_info WHERE rental_id = @RentalId";
+
+                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                {
+                    cmd.Parameters.AddWithValue("@RentalId", rental.RentalId);
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+
         }
 
         public async Task<RentalCategory> LoadCategoryByIdAsync(int categoryId)
