@@ -9,9 +9,15 @@
 <h1>Rental Equipment</h1>
 
 <p>@msg</p>
-<div class="mt-3 bg-success text-white bg-opacity-75">
-    @testMsg
-</div>
+@if (@testMsg != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @testMsg
+        <button type="button" class="closee" aria-label="Close" @onclick="CloseMessage">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
 
 
 @if (equipmentList == null)
@@ -128,7 +134,7 @@ else
     {
         if (DatabaseService.isSuccessfulConnection())
         {
-            msg = "Connection - OK!";
+            msg = "";
         }
         else
         {
@@ -137,6 +143,11 @@ else
 
         //custList = await DatabaseService.GetCustomers();
         await RefreshList();
+    }
+
+    private void CloseMessage()
+    {
+        testMsg = null;
     }
 
 
@@ -149,11 +160,11 @@ else
 
             if(equipmentList != null && equipmentList.Any())
             {
-                msg = "List populated";
+                testMsg = "List populated";
             }
             else
             {
-                msg = "Empty equipment list";
+                testMsg = "Empty equipment list";
             }
 
         }

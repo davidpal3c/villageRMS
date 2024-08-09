@@ -295,7 +295,35 @@ namespace VillageRMS.Services
             return equipmentList;
         }
 
-                           
+
+
+        public async Task<List<RentalEquipment>> GetRentalEquipment()
+        {
+          
+            List<RentalEquipment> equipmentList = new List<RentalEquipment>();
+
+            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            {
+                await conn.OpenAsync();
+
+                using (MySqlCommand cmd = new MySqlCommand(@"SELECT re.equipment_id, re.name, re.description, re.daily_rental_cost, re.category, cl.category_description 
+                                FROM rental_equipment re LEFT JOIN category_list cl ON re.category = cl.category_id", conn))
+                {
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var equipment = await _custMapper.MapFromReaderEquipmentAsync(reader);
+                            equipmentList.Add(equipment);
+                        }
+                    }
+                }
+            }
+
+            return equipmentList;
+        }
+
+
         public async Task AddNewEquipment(List<object> equipmentData)
         {
             if (equipmentData == null || equipmentData.Count != 4)

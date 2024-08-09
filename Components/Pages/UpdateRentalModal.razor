@@ -1,6 +1,7 @@
 ﻿@using Models
 @using Services
 @using Microsoft.AspNetCore.Components.Forms
+@inject Services.DatabaseService DatabaseService
 
 <!-- Update Rental -->
 
@@ -23,8 +24,11 @@
     <div class="form-group">
         <label class="form-label mt-2" for="customer">Customer</label>
         <InputNumber @bind-Value="rental.CustomerId" class="form-control" id="customer" />
+       
+        <div>@testMsg</div>
         <ValidationMessage For="@(() => rental.CustomerId)" />
     </div>
+    <div>@testMsg</div>
 
     <div class="form-group">
         <label class="form-label mt-2" for="equipment">Equipment</label>
@@ -51,8 +55,24 @@
 
 @code {
     private Rental rental;
+    private string sel = "";
+    private string? testMsg;
+    
+
     [Parameter] public Rental Rental { get; set; } = new Rental();
     [Parameter] public EventCallback<Rental> OnClickCallback { get; set; }
+    [Parameter] public List<Customer> customerOptions { get; set; }
+    [Parameter] public List<RentalEquipment> equipmentOptions { get; set; }
+
+    //private List<Models.Customer> customerOptions = new List<Customer>();
+    //private List<Models.RentalEquipment> equipmentOptions = new List<RentalEquipment>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        //await CustomerOptions();
+        //await EquipmentOptions();
+    }
    
     protected override void OnParametersSet()
     {
@@ -69,6 +89,33 @@
         catch (Exception ex)
         {
             throw new Exception(ex.Message);
+        }
+    }
+
+    private async Task CustomerOptions()
+    {
+        try
+        {
+            customerOptions = await DatabaseService.GetCustomers();
+            testMsg = "test";
+
+        }
+        catch (Exception e)
+        {
+            testMsg = $"Error loading options: {e.Message}";
+        }
+    }
+
+    private async Task EquipmentOptions()
+    {
+        try
+        {
+            equipmentOptions = await DatabaseService.GetRentalEquipment();
+
+        }
+        catch (Exception e)
+        {
+            testMsg = $"Error loading options: {e.Message}";
         }
     }
 

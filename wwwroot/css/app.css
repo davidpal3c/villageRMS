@@ -127,14 +127,37 @@ edit-delete-btn {
     z-index:20;
 }
 
+.new-modal-dialog
+{
+    position:absolute;
+    left:0px;
+    right:0px;
+    top:0px;
+    bottom:0px;
+    margin:auto;
+    display:flex;
+    flex-flow:row nowrap;
+    align-items:center;
+    justify-content:center;
+}
+
 .new-table
 {
     width:100%;
 }
 
-h2
+h1
 {
-    font-weight:600;
+    font-weight:700;
+}
+
+h5{
+    font-weight:400;
+}
+
+.column-stretch
+{
+    
 }
 
 .bii

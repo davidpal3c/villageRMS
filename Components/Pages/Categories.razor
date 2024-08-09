@@ -53,7 +53,7 @@
             {
                 <tr>
                     <td>@c.CategoryId.ToString()</td>
-                    <td>@c.CategoryDescription</td>
+                    <td class="column-stretch">@c.CategoryDescription</td>
                     <td class="edit-delete-column">
                         <button type="submit" class="btn btn-primary" @onclick="() => ShowCategoryUpdateModal(c)">
                             <i class="bi bi-pencil-square"></i>
@@ -72,7 +72,7 @@
             {
                 <tr>
                     <td>@c.CategoryId.ToString()</td>
-                    <td>@c.CategoryDescription</td>
+                    <td class="column-stretch">@c.CategoryDescription</td>
                     <td>
                         <button type="submit" class="btn btn-primary" @onclick="() => ShowCategoryUpdateModal(c)">
                             <i class="bi bi-pencil-square"></i>

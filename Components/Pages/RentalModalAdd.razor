@@ -7,33 +7,35 @@
     <label class="form-label mt-2" for="currentdate">Current Date</label>
     <input type="date" @bind="_currentDate" class="form-control" id="currentdate" />
 </div>
+
 <div class="form-group">
     <label class="form-label mt-2" for="customer">Customer</label>
-    <input type="number" @bind="_customerId" class="form-control" id="customer" />
-    <select class="form-control" @bind="_customerId" placeholder="Select a customer">
-        <option disabled>Select Customer</option>
+    <select class="form-control" @bind="_customerId" placeholder="Select a customer" id="customer">
+        <option>Select Customer</option>
         @foreach (Customer c in customerOptions)
         {
             @if (_customerId == c.CustomerId) _sel = "selected";
-            <option title="@c.CustomerId">@c.FirstName @c.LastName</option>
+            <option value="@c.CustomerId">@c.FirstName @c.LastName</option>
         }
     </select>
-    <div>@testMsg</div>
 </div>
+
 <div class="form-group">
     <label class="form-label mt-2" for="equipment">Equipment</label>
-    <input type="number" @bind="_equipmentId" class="form-control" id="equipment" />
-    <select class="form-control" @bind="_equipmentId" placeholder="Select Equipment" >
-        @foreach(Customer c in customerOptions)
+    <select class="form-control" @bind="_equipmentId" placeholder="Select Equipment" id="equipment">
+        <option>Select Equipment</option>
+        @foreach(RentalEquipment re in equipmentOptions)
         {
-            <option title="@c.CustomerId">@c.FirstName @c.LastName</option>
+            <option value="@re.EquipmentId">@re.Name</option>
         }
     </select>
 </div>
+
 <div class="form-group">
     <label class="form-label mt-2" for="rentaldate">Rental Date</label>
     <input type="date" @bind="_rentalDate" class="form-control" id="rentaldate" />
 </div>
+
 <div class="form-group">
     <label class="form-label mt-2" for="returndate">Return Date</label>
     <input type="date" @bind="_returnDate" class="form-control" id="returndate" />
@@ -67,8 +69,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        CustomerOptions();
-        EquipmentOptions();
+        await CustomerOptions();
+        await EquipmentOptions();
     }
 
     private async Task HandleClick()
@@ -101,7 +103,7 @@
     {
         try
         {
-            //equipmentOptions = await DatabaseService.GetRentalEquipmentAsync();
+            equipmentOptions = await DatabaseService.GetRentalEquipment();
 
         }
         catch (Exception e)
