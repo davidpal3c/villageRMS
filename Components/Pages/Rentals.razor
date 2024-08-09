@@ -25,6 +25,8 @@ else
         <div>
             <form @onsubmit="FilterRentals">
                 <input type="search" @bind="searchStr" class="search-field" placeholder="Search Rentals" @bind:event="oninput" @bind:after="FilterRentals" />
+                <span class="span-label">Rental</span><input type="date" @bind="rend" class="search-field" placeholder="Rental Date" @bind:event="oninput" @bind:after="FilterRentals" />
+                <span class="span-label">Return</span><input type="date" @bind="retd" class="search-field" placeholder="Return Date" @bind:event="oninput" @bind:after="FilterRentals" />
                 <button type="submit" class="btn btn-dark"><i class="bi bi-search"></i></button>
             </form>
         </div>
@@ -122,6 +124,8 @@ else
     private List<Rental>? filteredData = new List<Models.Rental>();
     private List<Rental>? result = new List<Rental>();
     private string? searchStr;
+    private DateOnly? rend;
+    private DateOnly? retd;
     private string? name;
 
 
@@ -164,9 +168,43 @@ else
         {
             bool match = true;
 
-            if (!string.IsNullOrEmpty(searchStr) &&
+            if ((!string.IsNullOrEmpty(searchStr) &&
                 !(rental.CustomerName.Contains(searchStr, StringComparison.OrdinalIgnoreCase) ||
-                rental.EquipmentName.Contains(searchStr, StringComparison.OrdinalIgnoreCase)))
+                rental.EquipmentName.Contains(searchStr, StringComparison.OrdinalIgnoreCase))) || 
+                (rend.ToString() != "" && !(rental.RentalDate == rend)) || 
+                (retd.ToString() != "" && !(rental.ReturnDate == retd)))
+            {
+                match = false;
+            }
+
+            if (match)
+            {
+                result.Add(rental);
+            }
+
+        }
+        filteredData = result;
+    }
+
+    private void FilterRentalsByRentalDate()
+    {
+        if (rentals_list == null || !rentals_list.Any())
+        {
+            testMsg = "nothing";
+            return;
+
+        }
+
+
+        result = new List<Models.Rental>();
+
+
+        foreach (Models.Rental rental in rentals_list)
+        {
+            bool match = true;
+
+            if (rend.ToString() != "" &&
+                !(rental.RentalDate == rend))
             {
                 match = false;
             }

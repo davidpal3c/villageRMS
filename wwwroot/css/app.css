@@ -148,8 +148,12 @@ edit-delete-btn {
 
 label
 {
-    color:#999999;
+    color:#909090;
     font-size:14px;
+}
+
+.span-label {
+    color: #909090;
 }
 
 h1
