@@ -1,4 +1,5 @@
-﻿<!-- Add New Customer -->
+﻿@inject Services.DatabaseService DatabaseService
+<!-- Add New Customer -->
 <div class="form-group">
     <label class="form-label mt-2" for="fn">First Name</label>
     <input type="text" @bind="_firstName" class="form-control" id="fn" />
@@ -45,6 +46,8 @@
     private async Task HandleClick()
     {
         returnVal.Clear();
+        int nextId = await DatabaseService.GetNextIdAsync("Customer", "CustomerID");
+        returnVal.Add(nextId.ToString());
         if (!string.IsNullOrEmpty(_lastName)) returnVal.Add(_lastName);
         if (!string.IsNullOrEmpty(_firstName)) returnVal.Add(_firstName);        
         if (!string.IsNullOrEmpty(_phone)) returnVal.Add(_phone);
