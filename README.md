@@ -22,7 +22,7 @@ VillageRMS is a rental management system designed to streamline the process of m
     string connectionString = "Server=127.0.0.1;Port=3307;Database=RMS;User=group3;Password=$4DpA$sg4p3;";
     ```
 
-  A key file is needed to access the ssh tunnel for this db instance. Please contact for more information. 
+  A pem key file is needed to access the ssh tunnel for this db instance. Please contact us for more information. 
     
 5. Run the application from Visual Studio.
 
@@ -39,7 +39,7 @@ VillageRMS is a rental management system designed to streamline the process of m
 5. Create a new Pull Request.
 
 ## Contact Information
-For any questions, please contact the development team [here](mailto:jose.palacios@edu.sait.ca), or [here](mailto:george.conde@edu.sait.ca), or [here](mailto:stefan.garcia@edu.sait.ca)
+For any questions, please contact the development team [here](mailto:jose.palacios@edu.sait.ca), or [here](mailto:george.conde@edu.sait.ca), or [here](mailto:stefan.garcia@edu.sait.ca).
 
 ## Acknowledgments
 - [MySQL Connector](https://www.mysql.com/products/connector/)
