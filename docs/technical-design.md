@@ -2,7 +2,7 @@
 
 ## Class Diagram
 <br><br>
- ![Class Diagram](https://res.cloudinary.com/duk3olmgh/image/upload/v1724112886/villagerms-class-diagram.png)
+<img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724112886/villagerms-class-diagram.png" alt="Class Diagram" width="600"/>
 
 docs/villagerms-class-diagram.png
 
