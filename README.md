@@ -49,7 +49,7 @@ For any questions, please contact the development team [here](mailto:jose.palaci
 
 
 ## Technical Design
-See ![Technical Design](docs/technical-design.md) for further information, UML documentation and database schema. 
+See ![Technical Design](docs/technical-design.md) for further technical information, UML documentation, database schema and more. 
 
 
 
