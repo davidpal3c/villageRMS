@@ -13,7 +13,7 @@ VillageRMS is a rental management system designed to streamline the process of m
 ### Installation
 1. Clone the repository:
     ```
-   git clone https://github.com/davidpal3c/eventhub-mgmt-app.git
+   git clone https://github.com/davidpal3c/villageRMS.git
    ```
     
 2. Open the solution in Visual Studio.
@@ -22,7 +22,7 @@ VillageRMS is a rental management system designed to streamline the process of m
     string connectionString = "Server=127.0.0.1;Port=3307;Database=RMS;User=group3;Password=$4DpA$sg4p3;";
     ```
 
-  A pem key file is needed to access the ssh tunnel for this db instance. Please contact us for more information. 
+  A private key file (pem) is needed to access the ssh tunnel for this db instance. Please contact us directly for more information. 
     
 5. Run the application from Visual Studio.
 
@@ -48,35 +48,11 @@ For any questions, please contact the development team [here](mailto:jose.palaci
 - [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
 
 
-
-# Technical Specifications
-
-## API Documentation
-- **Endpoints**:
-  - `/api/customers`: GET, POST, PUT, DELETE
-  - `/api/equipment`: GET, POST, PUT, DELETE
-  - `/api/rentals`: GET, POST, PUT, DELETE
-- **Request/Response Formats**:
-  - JSON format for all requests and responses.
-- **Authentication**:
-  - Token-based authentication.
-
 ## Technical Design
-- **Backend**:
-  - C# with .NET 8.0
-  - MySQL for database
-- **Frontend**:
-  - Blazor for UI
-- **Architecture**:
-  - MVC pattern
-  - Dependency Injection for service management
+See technical-design md 
+![technical-design](docs/technical-design.md)
 
-## Code Standards
-- **Naming Conventions**:
-  - PascalCase for class names and method names.
-  - camelCase for variable names.
-- **Best Practices**:
-  - Use async/await for asynchronous operations.
-  - Exception handling with try/catch blocks.
-  - Code comments for documentation.
- 
+
+## Specifications
+See specifications md 
+![specifications](docs/specifications.md)
