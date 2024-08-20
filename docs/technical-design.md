@@ -1,16 +1,30 @@
 # Technical Design
 
 ## Class Diagrams
-![Class Diagram](docs/villagerms-class-diagram.png)
+
+ ![Class Diagram](https://res.cloudinary.com/duk3olmgh/image/upload/v1724112886/villagerms-class-diagram.png)
+
+docs/villagerms-class-diagram.png
+
 
 ## Sequence Diagrams
-![Sequence Diagram1](docs/villagerms-sd-equipment-rental.png)
-![Sequence Diagram2](docs/villagerms-sd-update-equipment.png)
+
+![Equipment Rental](https://res.cloudinary.com/duk3olmgh/image/upload/v1724112842/villagerms-sd-equipment-rental.png)
+docs/villagerms-sd-equipment-rental.png
+
+![Rental Update](https://res.cloudinary.com/duk3olmgh/image/upload/v1724112807/villagerms-sd-update-equipment.png)
+docs/villagerms-sd-equipment-rental.png
+
 
 ## Database Schema
-![Database Schema](docs/villagerms-db-schema-erd.png)
+
+![Database Schema](https://res.cloudinary.com/duk3olmgh/image/upload/v1724112874/villagerms-db-schema-erd.png)
+docs/villagerms-db-schema-erd.png
+
 
 ## UI Prototype
+
+
 
 
 ## Technical Design
