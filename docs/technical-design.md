@@ -28,6 +28,7 @@ docs/diagrams/villagerms-db-schema-erd.png
 
 
 ## UI Prototype
+
 <img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724114083/Screenshot_1_h87xts.png" alt="Login view" width="500"/>
 <img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724114084/Screenshot_2_hrypzi.png" alt="Rentals page" width="500"/>
 <img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724114086/Screenshot_3_vdeekq.png" alt="Update Rental modal" width="500"/>
@@ -36,6 +37,9 @@ docs/diagrams/villagerms-db-schema-erd.png
 <img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724114083/Screenshot_9_klccmh.png" alt="Reports1" width="500"/>
 <img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724114082/Screenshot_7_oiu6hc.png" alt="Load data from Excel into Database" width="500"/>
 
+
+![Figma design file](https://www.figma.com/proto/ZFKQTzmYdpMOsaZwWJ1Vru/RMS-Prototype?page-id=0%3A1&node-id=23-683&viewport=777%2C651%2C0.12&t=bt7ViXkqFck9lgPP-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=1%3A50&show-proto-sidebar=1)
+<br>
 ## Technical Design
 - **Backend**:
   - C# with .NET 8.0
