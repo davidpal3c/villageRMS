@@ -4,38 +4,37 @@
 <br><br>
 <img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724112886/villagerms-class-diagram.png" alt="Class Diagram" width="600"/>
 
-docs/villagerms-class-diagram.png
-
+docs/diagrams/villagerms-class-diagram.png
 
 ## Sequence Diagrams
 <br><br>
+
 ### Equipment Rental
-![Equipment Rental](https://res.cloudinary.com/duk3olmgh/image/upload/v1724112842/villagerms-sd-equipment-rental.png)
-docs/villagerms-sd-equipment-rental.png
-<br><br>
+<img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724112842/villagerms-sd-equipment-rental.png" alt="Equipment Rental" width="600"/>
+
+docs/diagrams/villagerms-sd-equipment-rental.png
+
 ### Update Equipment
-![Rental Update](https://res.cloudinary.com/duk3olmgh/image/upload/v1724112807/villagerms-sd-update-equipment.png)
-docs/villagerms-sd-update-equipment.png
+<img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724112807/villagerms-sd-update-equipment.png" alt="Rental Update" width="600"/>
+
+docs/diagrams/villagerms-sd-update-equipment.png
 
 
 ## Database Schema
+<br><br>
+<img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724112874/villagerms-db-schema-erd.png" alt="Database Schema" width="600"/>
 
-![Database Schema](https://res.cloudinary.com/duk3olmgh/image/upload/v1724112874/villagerms-db-schema-erd.png)
-docs/villagerms-db-schema-erd.png
+docs/diagrams/villagerms-db-schema-erd.png
 
 
 ## UI Prototype
-
-![Login view] (https://res.cloudinary.com/duk3olmgh/image/upload/v1724114083/Screenshot_1_h87xts.png)
-![Rentals page](https://res.cloudinary.com/duk3olmgh/image/upload/v1724114084/Screenshot_2_hrypzi.png)
-![Update Rental modal](https://res.cloudinary.com/duk3olmgh/image/upload/v1724114086/Screenshot_3_vdeekq.png)
-![Customers page](https://res.cloudinary.com/duk3olmgh/image/upload/v1724114083/Screenshot_6_hfzlgo.png)
-![Equipment page - new aquipment modal](https://res.cloudinary.com/duk3olmgh/image/upload/v1724114082/Screenshot_5_p0ozhu.png)
-![Reports1](https://res.cloudinary.com/duk3olmgh/image/upload/v1724114083/Screenshot_9_klccmh.png)
-![Load data from Excel into Database](https://res.cloudinary.com/duk3olmgh/image/upload/v1724114082/Screenshot_7_oiu6hc.png)
-
-
-
+<img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724114083/Screenshot_1_h87xts.png" alt="Login view" width="500"/>
+<img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724114084/Screenshot_2_hrypzi.png" alt="Rentals page" width="500"/>
+<img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724114086/Screenshot_3_vdeekq.png" alt="Update Rental modal" width="500"/>
+<img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724114083/Screenshot_6_hfzlgo.png" alt="Customers page" width="500"/>
+<img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724114082/Screenshot_5_p0ozhu.png" alt="Equipment page - new aquipment modal" width="500"/>
+<img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724114083/Screenshot_9_klccmh.png" alt="Reports1" width="500"/>
+<img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724114082/Screenshot_7_oiu6hc.png" alt="Load data from Excel into Database" width="500"/>
 
 ## Technical Design
 - **Backend**:
@@ -46,8 +45,6 @@ docs/villagerms-db-schema-erd.png
 - **Architecture**:
   - MVC pattern
   - Dependency Injection for service management
-
-
 
 # Technical Specifications
 
@@ -73,4 +70,3 @@ docs/villagerms-db-schema-erd.png
   - Use async/await for asynchronous operations.
   - Exception handling with try/catch blocks.
   - Code comments for documentation.
- 
