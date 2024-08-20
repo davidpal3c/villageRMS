@@ -13,7 +13,7 @@ docs/villagerms-class-diagram.png
 docs/villagerms-sd-equipment-rental.png
 
 ![Rental Update](https://res.cloudinary.com/duk3olmgh/image/upload/v1724112807/villagerms-sd-update-equipment.png)
-docs/villagerms-sd-equipment-rental.png
+docs/villagerms-sd-update-equipment.png
 
 
 ## Database Schema
