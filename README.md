@@ -52,6 +52,5 @@ For any questions, please contact the development team [here](mailto:jose.palaci
 See ![Technical Design](docs/technical-design.md) for further technical information, UML documentation, database schema and more. 
 
 
-
 ## Specifications
 See ![Specifications](docs/specifications.md) for Use cases and Functional Specifications. 
