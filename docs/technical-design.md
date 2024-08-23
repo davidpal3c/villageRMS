@@ -1,6 +1,6 @@
 # Technical Design
 <br>
-<br>
+
 ## Class Diagram
 <br>
 <img src="https://res.cloudinary.com/duk3olmgh/image/upload/v1724112886/villagerms-class-diagram.png" alt="Class Diagram" width="600"/>
