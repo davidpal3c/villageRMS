@@ -41,16 +41,13 @@ VillageRMS is a rental management system designed to streamline the process of m
 ## Contact Information
 For any questions, please contact the development team [here](mailto:jose.palacios@edu.sait.ca), or [here](mailto:george.conde@edu.sait.ca), or [here](mailto:stefan.garcia@edu.sait.ca).
 
-
 ## Acknowledgments
 - [MySQL Connector](https://www.mysql.com/products/connector/)
 - [Microsoft Maui](https://dotnet.microsoft.com/apps/maui)
 - [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
 
-
 ## Technical Design
 See ![Technical Design](docs/technical-design.md) for further technical information, UML documentation, database schema and more. 
-
 
 ## Specifications
 See ![Specifications](docs/specifications.md) for Use cases and Functional Specifications. 
