@@ -2,6 +2,7 @@
 
 ## Description
 VillageRMS is a rental management system designed to streamline the process of managing rental equipment, customers, and rental transactions. The system provides functionalities for updating equipment, managing categories, and handling customer information.
+<br>
 
 ## Getting Started
 
