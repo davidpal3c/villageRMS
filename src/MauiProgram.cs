@@ -21,7 +21,7 @@ namespace VillageRMS
             {
                 //open ssh to cloud server via terminal and port forward 3306 to local 3307 (will need an ssh tunnel terminal) or connect use own connection
                 //to open ssh tunnel, run this line on terminal> ssh -i "C:\path\to\group3sad.pem" -L 3307:localhost:3306 ubuntu@ec2-54-87-40-9.compute-1.amazonaws.com
-                string connectionString = "Server=127.0.0.1;Port=3307;Database=RMS;User=group3;Password=$4DpA$sg4p3;";
+                string connectionString = "Server=;Port=;Database=;User=;Password=;";
                 return new DatabaseService(connectionString);
             });
 
