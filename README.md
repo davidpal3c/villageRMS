@@ -6,9 +6,7 @@ VillageRMS is a rental management system designed to streamline the process of m
 
 (Click Image for App Demo)
 <br>
-[<img src="[https://iili.io/2xF7xrQ.md.jpg" width="40%">](https://youtu.be/wPv-K9ioARo")
-
-[![2xF7xrQ.md.jpg](https://iili.io/2xF7xrQ.md.jpg)](https://freeimage.host/i/2xF7xrQ)
+[![2xF7xrQ.md.jpg](https://iili.io/2xF7xrQ.md.jpg)](https://youtu.be/wPv-K9ioARo)
 
 
 ## Getting Started
