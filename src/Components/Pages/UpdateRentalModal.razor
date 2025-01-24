@@ -24,15 +24,15 @@
     <div class="form-group">
         <label class="form-label mt-2" for="customer">Customer</label>
        
-        <select class="form-control" @bind="rental.CustomerId" placeholder="Select a customer" id="customer" @onclick="CustomerOptions">
-            <option  disabled>Select Customer</option>
-            @if(customerOptions.Count > 0)
-            {
+        <select class="form-select" value="@rental.CustomerId" id="customer" @onchange="HandleCustomerChange">
+            <option value="">Select Customer</option>
+            @* @if(customerOptions.Count > 0)
+            { *@
                 @foreach (Customer c in customerOptions)
                 {
                     <option value="@c.CustomerId">@c.FirstName @c.LastName</option>
                 }
-            }
+            @* } *@
         </select>
         <ValidationMessage For="@(() => rental.CustomerId)" />
     </div>
@@ -40,15 +40,15 @@
 
     <div class="form-group">
         <label class="form-label mt-2" for="equipment">Equipment</label>
-        <select class="form-control" @bind="rental.EquipmentId" placeholder="Select Equipment" id="equipment" @onclick="EquipmentOptions">
-            <option disabled>Select Equipment</option>
-            @if(customerOptions.Count > 0)
-            {
+        <select class="form-select" value="@rental.EquipmentId" id="equipment" @onchange="HandleEquipmentChange">
+            <option value="">Select Equipment</option>
+            @* @if(customerOptions.Count > 0)
+            { *@
                 @foreach (RentalEquipment re in equipmentOptions)
                 {
-                <option value="@re.EquipmentId">@re.Name</option>
+                    <option value="@re.EquipmentId">@re.Name</option>
                 }
-            }
+            @* } *@
         </select>
         <ValidationMessage For="@(() => rental.EquipmentId)" />
     </div>
@@ -84,22 +84,26 @@
 
     [Parameter] public Rental Rental { get; set; } = new Rental();
     [Parameter] public EventCallback<Rental> OnClickCallback { get; set; }
+    [Parameter] public List<Models.Customer> customerOptions { get; set; }
+    [Parameter] public List<Models.RentalEquipment> equipmentOptions { get; set; }
 
 
-    private List<Models.Customer> customerOptions = new List<Customer>();
-    private List<Models.RentalEquipment> equipmentOptions = new List<RentalEquipment>();
+    //private List<Models.Customer> customerOptions = new List<Customer>();
+   //private List<Models.RentalEquipment> equipmentOptions = new List<RentalEquipment>();
 
 
     protected override async Task OnInitializedAsync()
     {
-        
+        //await CustomerOptions();
+        //await EquipmentOptions();
     }
 
+    /*
     protected async Task LoadOptions()
     {
         CustomerOptions();
         EquipmentOptions();
-    }
+    }*/
 
     protected override void OnParametersSet()
     {
@@ -119,6 +123,7 @@
         }
     }
 
+    /*
     private async Task CustomerOptions()
     {
         try
@@ -137,13 +142,40 @@
     {
         try
         {
-            equipmentOptions = await DatabaseService.GetRentalEquipment();
+            equipmentOptions = await DatabaseService.GetRentalEquipmentAsync();
 
         }
         catch (Exception e)
         {
             testMsg = $"Error loading options: {e.Message}";
         }
+    }*/
+
+    private void HandleCustomerChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var id))
+        {
+            rental.CustomerId = id;
+
+        }
+        else
+        {
+            // not int
+        }
+
     }
 
+    private void HandleEquipmentChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var id))
+        {
+            rental.EquipmentId = id;
+
+        }
+        else
+        {
+            // not int
+        }
+
+    }
 }

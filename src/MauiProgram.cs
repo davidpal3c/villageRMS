@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls;
 using VillageRMS.Services;
+using VillageRMS.Settings;
 
 namespace VillageRMS
 {
@@ -19,10 +20,12 @@ namespace VillageRMS
             // register svc for DI
             builder.Services.AddTransient<DatabaseService>(provider =>
             {
-                //open ssh to cloud server via terminal and port forward 3306 to local 3307 (will need an ssh tunnel terminal) or connect use own connection
-                //to open ssh tunnel, run this line on terminal> ssh -i "C:\path\to\group3sad.pem" -L 3307:localhost:3306 ubuntu@ec2-54-87-40-9.compute-1.amazonaws.com
-                string connectionString = "Server=;Port=;Database=;User=;Password=;";
-                return new DatabaseService(connectionString);
+
+                //string connectionString = "Server=;Port=;Database=;User=;Password=;";
+                //string connectionString = $"Server={SystemSettings.DBUrl};Port={SystemSettings.DBPort};Database={SystemSettings.db};User={SystemSettings.dbusername};Password={SystemSettings.dbpassword};";
+
+                //return new DatabaseService(connectionString);
+                return new DatabaseService();
             });
 
             builder.Services.AddMauiBlazorWebView();

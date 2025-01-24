@@ -1,46 +1,39 @@
 ﻿using MySqlConnector;
 using VillageRMS.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Text.Json;
+using System.Net.Http.Json;
+using VillageRMS.Settings;
 using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using System.Reflection.Metadata.Ecma335;
-using Microsoft.Maui.Controls;
-using System.Linq.Expressions;
 
 namespace VillageRMS.Services
 {
     public class DatabaseService
     {
 
-        private readonly string _connectionString;
-        private readonly CustomerMapper _custMapper;
-        private readonly EquipmentMapper _equipmentMapper;
-        private readonly RentalInformationMapper _rentalInformationMapper;
+        public DatabaseService() { }
 
-        public DatabaseService(string connectionString)
-        {
-            _connectionString = connectionString;
-            _custMapper = new CustomerMapper();
-            _equipmentMapper = new EquipmentMapper();
-            _rentalInformationMapper = new RentalInformationMapper();
-        }
-
-        //for testing only
-        public bool isSuccessfulConnection()
+        public async Task<bool> isSuccessfulConnection()
         {
             bool result = false;
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+
+            using (HttpClient httpClient = new HttpClient())
             {
                 try
                 {
-                    conn.Open();
-                    result = true;
+                    // api test endpoint
+                    //string apiUrl = "http://localhost:3000/test";
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/test";
+                    Console.WriteLine($"running test on api end point {apiUrl}");
+
+                    //get
+                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+
+                    // success check
+                    result = response.IsSuccessStatusCode;
                 }
-                catch (Exception ex)
+                catch (Exception ex) // errors
                 {
+                    Console.WriteLine($"error connecting to API: {ex.Message}");
                     result = false;
                 }
             }
@@ -48,544 +41,619 @@ namespace VillageRMS.Services
             return result;
         }
 
-        //get customer list
         public async Task<List<Customer>> GetCustomers()
         {
             var custList = new List<Customer>();
 
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            using (var httpClient = new HttpClient())
             {
-                await conn.OpenAsync();
-
-                using (MySqlCommand cmd = new MySqlCommand("SELECT * FROM Customer", conn))
+                try
                 {
-                    using (var reader = await cmd.ExecuteReaderAsync())
+                    // endpoint
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.customers}";
+
+                    // get
+                    var response = await httpClient.GetAsync(apiUrl);
+
+                    if (response.IsSuccessStatusCode)
                     {
-                        while (await reader.ReadAsync())
+                        // json response
+                        var jsonResponse = await response.Content.ReadAsStringAsync();
+
+                        // omg why did we not create objects with matching db fields
+                        var options = new JsonSerializerOptions
                         {
-                            var customer = _custMapper.MapFromReaderCustomer(reader);
-                            custList.Add(customer);
-                        }
+                            PropertyNameCaseInsensitive = true,
+                            Converters = { new CustomerJsonConverter() } // pulling your brain out to map objects
+                        };
+
+                        // deserialize with mapping
+                        custList = JsonSerializer.Deserialize<List<Customer>>(jsonResponse, options);
+
                     }
+                    else
+                    {
+                        // handle erros
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // handle more errors
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
                 }
             }
 
-            return custList;
+            if (custList != null)
+            {
+                return custList;
+            }
+            else
+            {
+                return new List<Customer>(); //null
+            }
+
+
         }
 
         public async Task AddNewCustomer(List<string> customerData)
         {
-            if (customerData == null || !(customerData.Count == 6))
+            if (customerData == null || customerData.Count != 6)
                 throw new ArgumentException("Invalid customer data");
 
-            string additionalColumn = String.Empty;
-            string additionalParam = String.Empty;
-
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            var customer = new
             {
-                await conn.OpenAsync();
+                CustomerID = customerData[0],
+                LastName = customerData[1],
+                FirstName = customerData[2],
+                ContactPhone = customerData[3],
+                Email = customerData[4],
+                Notes = customerData[5]
+            };
 
-                string commandString = $"INSERT INTO Customer (CustomerID, LastName, FirstName, ContactPhone, Email, Notes) VALUES (@custID, @LastName, @FirstName, @ContactPhone, @Email, @Notes);";
-
-                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+            using (var httpClient = new HttpClient())
+            {
+                try
                 {
-                    cmd.Parameters.AddWithValue("@custID", customerData[0]);
-                    cmd.Parameters.AddWithValue("@LastName", customerData[1]);
-                    cmd.Parameters.AddWithValue("@FirstName", customerData[2]);
-                    cmd.Parameters.AddWithValue("@ContactPhone", customerData[3]);
-                    cmd.Parameters.AddWithValue("@Email", customerData[4]);
-                    cmd.Parameters.AddWithValue("@Notes", customerData[5]);
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.customers}";
+                    var response = await httpClient.PostAsJsonAsync(apiUrl, customer);
 
-                    string cmdString = BuildQueryString(cmd);
-
-                    await cmd.ExecuteNonQueryAsync();
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
                 }
             }
         }
 
-
         public async Task UpdateCustomer(Customer updatedCustomer)
         {
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            using (var httpClient = new HttpClient())
             {
-                await conn.OpenAsync();
-
-                string commandString = "UPDATE Customer SET LastName = @Lastname, FirstName = @FirstName, ContactPhone = @ContactPhone, Email = @Email, Status = @Status, Notes = @Notes  WHERE CustomerID = @CustomerId";
-
-                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                try
                 {
-                    cmd.Parameters.AddWithValue("@LastName", updatedCustomer.LastName);
-                    cmd.Parameters.AddWithValue("@FirstName", updatedCustomer.FirstName);
-                    cmd.Parameters.AddWithValue("@ContactPhone", updatedCustomer.PhoneNumber);
-                    cmd.Parameters.AddWithValue("@Email", updatedCustomer.EmailAddress);
-                    cmd.Parameters.AddWithValue("@Status", updatedCustomer.Status);
-                    cmd.Parameters.AddWithValue("@Notes", updatedCustomer.Notes);
-                    cmd.Parameters.AddWithValue("@CustomerId", updatedCustomer.CustomerId);
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.customers}";
+                    apiUrl = $"{apiUrl}/{updatedCustomer.CustomerId}";
+                    var response = await httpClient.PutAsJsonAsync(apiUrl, updatedCustomer);
 
-                    await cmd.ExecuteNonQueryAsync();
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
                 }
             }
         }
 
         public async Task DeleteCustomer(Customer customer)
         {
-            
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            using (var httpClient = new HttpClient())
             {
-                await conn.OpenAsync();
-
-                string commandString = "DELETE FROM Customer WHERE CustomerId = @CustomerId";
-
-                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                try
                 {
-                    cmd.Parameters.AddWithValue("@CustomerId", customer.CustomerId);
-                    await cmd.ExecuteNonQueryAsync();
-                }
-            }
-            
-        }
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.customers}";
+                    apiUrl = $"{apiUrl}/{customer.CustomerId}";
+                    var response = await httpClient.DeleteAsync(apiUrl);
 
-        public async Task DeleteEquipment(RentalEquipment equipment)
-        {
-            try
-            {
-                using (MySqlConnection conn = new MySqlConnection(_connectionString))
-                {
-                    await conn.OpenAsync();
-
-                    string commandString = "DELETE FROM rental_equipment WHERE equipment_id = @EquipmentId";
-
-                    using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                    if (!response.IsSuccessStatusCode)
                     {
-                        cmd.Parameters.AddWithValue("@EquipmentId", equipment.EquipmentId);
-                        await cmd.ExecuteNonQueryAsync();
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
                     }
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
+                }
             }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-
         }
 
         public async Task<List<RentalCategory>> GetCategories()
         {
-            List < RentalCategory> categoryList = new List<RentalCategory>();
+            var categoryList = new List<RentalCategory>();
 
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            using (var httpClient = new HttpClient())
             {
-                await conn.OpenAsync();
-
-                using (MySqlCommand cmd = new MySqlCommand("SELECT * FROM category_list", conn))
+                try
                 {
-                    using (var reader = await cmd.ExecuteReaderAsync())
+                    // end point
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.categories}";
+
+                    // get
+                    var response = await httpClient.GetAsync(apiUrl);
+
+                    if (response.IsSuccessStatusCode)
                     {
-                        while (await reader.ReadAsync())
+                        // json
+                        var jsonResponse = await response.Content.ReadAsStringAsync();
+
+                        var options = new JsonSerializerOptions
                         {
-                            var category = _custMapper.MapFromReaderCategory(reader);
-                            categoryList.Add(category);
-                        }
+                            PropertyNameCaseInsensitive = true,
+                            Converters = { new CategoryJsonConverter() } //map
+                        };
+
+                        // Deserialize
+                        categoryList = JsonSerializer.Deserialize<List<RentalCategory>>(jsonResponse, options);
                     }
+                    else
+                    {
+                        // errors
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    //  more errors
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
                 }
             }
 
-            return categoryList;
-        }
-
-        public async Task AddNewCategoryAsync(List<string> catData)
-        {
-            if (catData == null || catData.Count != 2)
-                throw new ArgumentException("incomplete data");
-
-            try
-            {
-                using (MySqlConnection conn = new MySqlConnection(_connectionString))
-                {
-                    await conn.OpenAsync();
-
-                    string commandString = "INSERT INTO category_list (category_id, category_description) VALUES (@CatId, @Desc);";
-
-                    using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@CatId", catData[0]);
-                        cmd.Parameters.AddWithValue("@Desc", catData[1]);
-
-                        //string cmdString = BuildQueryString(cmd);
-
-                        await cmd.ExecuteNonQueryAsync();
-                    }
-                } 
-            } catch (Exception ex)
-            {
-                
-            }
-            
-        }
-
-        // get equipment
-        public async Task<List<RentalEquipment>> GetEquipmentAsync(int? catId)
-        {
-            List<RentalEquipment> equipmentList = new List<RentalEquipment>();
-
-            string query = "SELECT * FROM rental_equipment ";
-
-            if (catId.HasValue)
-            {
-                query += "WHERE category = @catId;";
-            }
-
-            try
-            {
-                using (var conn = new MySqlConnection(_connectionString))
-                {
-                    await conn.OpenAsync();
-
-                    using (var cmd = new MySqlCommand(query, conn))
-                    {
-                        if (catId.HasValue)
-                        {
-                            cmd.Parameters.AddWithValue("@catId",catId);
-                        }
-
-                        string finalQuery = BuildQueryString(cmd);
-
-                        using (var reader = await cmd.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                var equipment = _equipmentMapper.MapFromReaderRentalEquipment(reader);
-                                equipmentList.Add(equipment);
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e)
-            {
-
-            }
-            return equipmentList;
-        }
-
-        public async Task<RentalCategory> GetCategoryByIdAsync(int categoryId)
-        {
-            RentalCategory category = null;
-
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
-            {
-                await conn.OpenAsync();
-
-                string query = "SELECT category_id, category_description FROM rental_category WHERE category_id = @categoryId";
-
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@categoryId", categoryId);
-
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                    {
-                        if (await reader.ReadAsync())
-                        {
-                            category = new RentalCategory
-                            {
-                                CategoryId = reader.GetInt32("category_id"),
-                                CategoryDescription = reader.GetString("category_description")
-                            };
-                        }
-                    }
-                }
-            }
-
-            return category;
+            return categoryList ?? new List<RentalCategory>(); 
         }
 
         public async Task AddCategory(List<object> catData)
         {
-            if (catData == null)
+            if (catData == null || catData.Count < 2)
                 throw new ArgumentException("Invalid category data");
 
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            using (var httpClient = new HttpClient())
             {
-                await conn.OpenAsync();
-
-                string commandString = "INSERT INTO category_list (category_id, category_description) VALUES (@CategoryId, @CategoryDescription)";
-
-                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                try
                 {
-                    cmd.Parameters.AddWithValue("@CategoryId", catData[0]);
-                    cmd.Parameters.AddWithValue("@CategoryDescription", catData[1]);
-                 
+                    // endpoint
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.categories}";
 
-                    await cmd.ExecuteNonQueryAsync();
+                    // data
+                    var category = new
+                    {
+                        CategoryId = catData[0],
+                        CategoryDescription = catData[1]
+                    };
+
+                    // post
+                    var response = await httpClient.PostAsJsonAsync(apiUrl, category);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // error
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
                 }
             }
         }
 
-
         public async Task UpdateCategory(RentalCategory category)
         {
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            if (category == null)
+                throw new ArgumentException("Invalid category");
+
+            using (var httpClient = new HttpClient())
             {
-                await conn.OpenAsync();
-
-                string commandString = "UPDATE category_list SET category_description = @CategoryDescription WHERE category_id = @CategoryId";
-
-                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                try
                 {
-                    cmd.Parameters.AddWithValue("@CategoryDescription", category.CategoryDescription);
-                    cmd.Parameters.AddWithValue("@CategoryId", category.CategoryId);
+                    // endpoint
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.categories}/{category.CategoryId}";
 
-                    await cmd.ExecuteNonQueryAsync();
+                    // put
+                    var response = await httpClient.PutAsJsonAsync(apiUrl, category);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // error
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
                 }
             }
         }
 
         public async Task DeleteCategory(RentalCategory category)
         {
+            if (category == null)
+                throw new ArgumentException("Invalid category");
 
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            using (var httpClient = new HttpClient())
             {
-                await conn.OpenAsync();
-
-                string commandString = "DELETE FROM category_list WHERE category_id = @CategoryId";
-
-                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                try
                 {
-                    cmd.Parameters.AddWithValue("@CategoryId", category.CategoryId);
-                    await cmd.ExecuteNonQueryAsync();
+                    // endpoint
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.categories}/{category.CategoryId}";
+
+                    // del
+                    var response = await httpClient.DeleteAsync(apiUrl);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // error
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
                 }
             }
-
         }
-
 
         public async Task<List<RentalEquipment>> GetRentalEquipmentAsync()
         {
-            List<RentalEquipment> equipmentList = new List<RentalEquipment>();
+            var equipmentList = new List<RentalEquipment>();
 
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            using (var httpClient = new HttpClient())
             {
-                await conn.OpenAsync();
-
-                string query = @"SELECT re.equipment_id, re.name, re.description, re.daily_rental_cost, re.category, cl.category_description 
-                                FROM rental_equipment re LEFT JOIN category_list cl ON re.category = cl.category_id";
-
-                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                try
                 {
-                    using (var reader = await cmd.ExecuteReaderAsync())
+                    // endpoint
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.equipment}";
+
+                    // get
+                    var response = await httpClient.GetAsync(apiUrl);
+
+                    if (response.IsSuccessStatusCode)
                     {
-                        while (await reader.ReadAsync())
+
+                        //var jsonResponse = await response.Content.ReadAsStringAsync();
+
+                        // deserialize
+                        //equipmentList = JsonSerializer.Deserialize<List<RentalEquipment>>(jsonResponse, new JsonSerializerOptions
+                        //{
+                        //    PropertyNameCaseInsensitive = true
+                        //});
+
+                        // response
+                        var jsonResponse = await response.Content.ReadAsStringAsync();
+
+                        var options = new JsonSerializerOptions
                         {
-                            var equipment = await _custMapper.MapFromReaderEquipmentAsync(reader);
-                            equipmentList.Add(equipment);
-                        }
+                            PropertyNameCaseInsensitive = true,
+                            Converters = { new EquipmentJsonConverter() } //map
+                        };
+
+                        // deserialize
+                        equipmentList = JsonSerializer.Deserialize<List<RentalEquipment>>(jsonResponse, options);
+
+                    }
+                    else
+                    {
+                        // error responses
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
                     }
                 }
-            }
-            return equipmentList;
-        }
-
-        public async Task<List<RentalEquipment>> GetRentalEquipment()
-        {
-          
-            List<RentalEquipment> equipmentList = new List<RentalEquipment>();
-
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
-            {
-                await conn.OpenAsync();
-
-                using (MySqlCommand cmd = new MySqlCommand(@"SELECT re.equipment_id, re.name, re.description, re.daily_rental_cost, re.category, cl.category_description 
-                                FROM rental_equipment re LEFT JOIN category_list cl ON re.category = cl.category_id", conn))
+                catch (Exception ex)
                 {
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                    {
-                        while (await reader.ReadAsync())
-                        {
-                            var equipment = await _custMapper.MapFromReaderEquipmentAsync(reader);
-                            equipmentList.Add(equipment);
-                        }
-                    }
+                    // more errors
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
                 }
             }
 
-            return equipmentList;
+            return equipmentList ?? new List<RentalEquipment>(); 
         }
 
-
-        // get rental information with filter
-        public async Task<List<Rental>> GetRentalInformationAsync(DateOnly? filter = null)
-        {
-            List<Rental> rentals = new List<Rental>();
-
-            string query = "SELECT * FROM rental_info ";
-            if (filter.HasValue)
-            {
-                query += "WHERE DATE(currentdate) = @date";
-            }
-
-            try
-            {
-                using (var conn = new MySqlConnection(_connectionString))
-                {
-                    await conn.OpenAsync();
-                    using (var cmd = new MySqlCommand(query, conn))
-                    {
-                        if (filter.HasValue)
-                        {
-                            cmd.Parameters.AddWithValue("@date", filter.Value.ToString("yyyy-MM-dd"));
-                        }
-
-                        string finalQuery = BuildQueryString(cmd);
-                        //Console.WriteLine(finalQuery);
-
-                        using (var reader = await cmd.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                var rentalinfo = _rentalInformationMapper.MapFromReaderRentalInformation(reader);
-                                rentals.Add(rentalinfo);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                //Console.WriteLine($"Error: {e.Message}");
-                //throw;
-            }
-
-            return rentals;
-        }
-
-        public async Task<List<Rental>> GetRentalInformationAsync(int? customerId)
-        {
-            List<Rental> rentals = new List<Rental>();
-
-            string query = "SELECT * FROM rental_info ";
-            if (customerId.HasValue)
-            {
-                query += "WHERE `customer_id` = @custid";
-            }
-
-            try
-            {
-                using (var conn = new MySqlConnection(_connectionString))
-                {
-                    await conn.OpenAsync();
-                    using (var cmd = new MySqlCommand(query, conn))
-                    {
-                        if (customerId.HasValue)
-                        {
-                            cmd.Parameters.AddWithValue("@custid", customerId);
-                        }
-
-                        string finalQuery = BuildQueryString(cmd);
-                        Console.WriteLine(finalQuery);
-
-                        using (var reader = await cmd.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                var rentalinfo = _rentalInformationMapper.MapFromReaderRentalInformation(reader);
-                                rentals.Add(rentalinfo);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-
-            }
-
-            return rentals;
-        }
-
-            //for debuggin only
-        private string BuildQueryString(MySqlCommand cmd)
-        {
-            string query = cmd.CommandText;
-            foreach (MySqlParameter param in cmd.Parameters)
-            {
-                query = query.Replace(param.ParameterName, $"'{param.Value}'");
-            }
-            return query;
-        }
-                           
         public async Task AddNewEquipment(List<object> equipmentData)
         {
-            //if (equipmentData == null || equipmentData.Count != 4)
             if (equipmentData == null || !(equipmentData.Count == 5 || equipmentData.Count == 4))
-                    throw new ArgumentException("Invalid equipment data");
+                throw new ArgumentException("Invalid equipment data");
 
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            using (var httpClient = new HttpClient())
             {
-                await conn.OpenAsync();
-
-                string additionalColumn = String.Empty;
-                string additionalParam = String.Empty;
-
-                if (equipmentData.Count == 4) //no id and use auto increment
+                try
                 {
-                    additionalColumn = "";
-                    additionalParam = "";
+                    // endpoint
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.equipment}";
+
+                    // payload
+                    var equip = new
+                    {
+                        EquipmentId = equipmentData.Count == 5 ? equipmentData[0] : null, // Set null for auto-increment
+                        CategoryId = equipmentData.Count == 5 ? equipmentData[1] : equipmentData[0],
+                        Name = equipmentData.Count == 5 ? equipmentData[2] : equipmentData[1],
+                        Description = equipmentData.Count == 5 ? equipmentData[3] : equipmentData[2],
+                        DailyCost = equipmentData.Count == 5 ? equipmentData[4] : equipmentData[3]
+                    };
+
+                    // post
+                    var response = await httpClient.PostAsJsonAsync(apiUrl, equip);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    additionalColumn = "equipment_id,";
-                    additionalParam = "@equipId,";
-                }
-
-                string commandString = $"INSERT INTO rental_equipment (equipment_id, category, name,  description, daily_rental_cost) VALUES (@equipId, @CategoryId, @Name, @Description, @DailyCost);";
-
-                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
-                {
-                    //int moveIndex = 0;
-
-                    //if (equipmentData.Count == 5)
-                    //{
-                        //moveIndex = 1;
-                        cmd.Parameters.AddWithValue("@equipId", equipmentData[0]);
-                    //}
-
-                    cmd.Parameters.AddWithValue("@CategoryId", equipmentData[1]);
-                    cmd.Parameters.AddWithValue("@Name", equipmentData[2]);
-                    cmd.Parameters.AddWithValue("@Description", equipmentData[3]);
-                    cmd.Parameters.AddWithValue("@DailyCost", equipmentData[4]);
-
-                    string cmdString = BuildQueryString(cmd);
-
-                    await cmd.ExecuteNonQueryAsync();
+                    // errors
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
                 }
             }
         }
 
+        public async Task UpdateEquipment(RentalEquipment updateEquipment)
+        {
+            if (updateEquipment == null)
+                throw new ArgumentNullException(nameof(updateEquipment), "Equipment data cannot be null");
 
+            using (var httpClient = new HttpClient())
+            {
+                try
+                {
+                    // Endpoint
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.equipment}/{updateEquipment.EquipmentId}";
+
+                    // equipment update
+                    var equipment = new
+                    {
+                        Name = updateEquipment.Name,
+                        CategoryId = updateEquipment.CategoryId,
+                        Description = updateEquipment.Description,
+                        DailyCost = updateEquipment.Daily_rental_cost
+                    };
+
+                    // put
+                    var response = await httpClient.PutAsJsonAsync(apiUrl, equipment);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // errors
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
+                }
+            }
+        }
+
+        public async Task DeleteEquipment(RentalEquipment equipment)
+        {
+            if (equipment == null)
+                throw new ArgumentNullException(nameof(equipment), "Equipment data cannot be null");
+
+            using (var httpClient = new HttpClient())
+            {
+                try
+                {
+                    // endpoint
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.equipment}/{equipment.EquipmentId}";
+
+                    //delete
+                    var response = await httpClient.DeleteAsync(apiUrl);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // error
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
+                }
+            }
+        }
+
+        // get equipment by id
+        public async Task<List<RentalEquipment>> GetEquipmentAsync(int? catId)
+        {
+            var equipmentList = new List<RentalEquipment>();
+
+            using (var httpClient = new HttpClient())
+            {
+                try
+                {
+                    // hand endpoint with or without param
+                    string apiUrl = catId.HasValue
+                        ? $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.equipment}?categoryId={catId}"
+                        : $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.equipment}";
+
+                    // get
+                    var response = await httpClient.GetAsync(apiUrl);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // json
+                        var jsonResponse = await response.Content.ReadAsStringAsync();
+
+                        var options = new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true,
+                            Converters = { new EquipmentJsonConverter() } //map
+                        };
+
+                        equipmentList = JsonSerializer.Deserialize<List<RentalEquipment>>(jsonResponse, options);
+
+
+                    }
+                    else
+                    {
+                        // error
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // more error
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
+                }
+            }
+
+            return equipmentList ?? new List<RentalEquipment>();
+        }
+
+        //list rentals
         public async Task<List<Rental>> GetRentals()
         {
             var rentalList = new List<Rental>();
 
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            using (var httpClient = new HttpClient())
             {
-                await conn.OpenAsync();
-
-                using (MySqlCommand cmd = new MySqlCommand("SELECT * FROM rental_information_view", conn))
+                try
                 {
-                    using (var reader = await cmd.ExecuteReaderAsync())
+                    // end point
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.rental}";
+
+                    // get
+                    var response = await httpClient.GetAsync(apiUrl);
+
+                    if (response.IsSuccessStatusCode)
                     {
-                        while (await reader.ReadAsync())
+                        // json
+                        var jsonResponse = await response.Content.ReadAsStringAsync();
+
+                        var options = new JsonSerializerOptions
                         {
-                            var rental = _custMapper.MapFromReaderRental(reader);
-                            rentalList.Add(rental);
-                        }
+                            PropertyNameCaseInsensitive = true,
+                            Converters = { new RentalJsonConverter() } //map
+                        };
+
+                        rentalList = JsonSerializer.Deserialize<List<Rental>>(jsonResponse, options);
                     }
+                    else
+                    {
+                        // error
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // more erros
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
                 }
             }
 
-            return rentalList;
+            return rentalList ?? new List<Rental>();
         }
 
+        //rental with date param
+        public async Task<List<Rental>> GetRentalInformationAsync(DateOnly? filter = null)
+        {
+            var rentals = new List<Rental>();
 
+            using (var httpClient = new HttpClient())
+            {
+                try
+                {
+                    // endpoint
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.rental}";
+
+                    // param
+                    if (filter.HasValue)
+                    {
+                        apiUrl += $"?rental_date={filter.Value.ToString("yyyy-MM-dd")}";
+                    }
+
+                    // get
+                    var response = await httpClient.GetAsync(apiUrl);
+
+                    if (response.IsSuccessStatusCode)
+                    { 
+                        var options = new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true,
+                            Converters = { new RentalJsonConverter() } 
+                        };
+
+                        // deserialize
+                        var jsonResponse = await response.Content.ReadAsStringAsync();
+                        rentals = JsonSerializer.Deserialize<List<Rental>>(jsonResponse, options);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
+                }
+            }
+
+            return rentals;
+        }
+
+        //rental with int param overload
+        public async Task<List<Rental>> GetRentalInformationAsync(int? customerId)
+        {
+            var rentals = new List<Rental>();
+
+            using (var httpClient = new HttpClient())
+            {
+                try
+                {
+                    // endpoint
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.rental}";
+
+                    // param
+                    if (customerId.HasValue)
+                    {
+                        apiUrl += $"?customer_id={customerId}";
+                    }
+
+                    // get
+                    var response = await httpClient.GetAsync(apiUrl);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // json
+                        var options = new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true,
+                            Converters = { new RentalJsonConverter() } 
+                        };
+
+                        // deserialize
+                        var jsonResponse = await response.Content.ReadAsStringAsync();
+                        rentals = JsonSerializer.Deserialize<List<Rental>>(jsonResponse, options);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
+                }
+            }
+
+            return rentals;
+        }
+
+        /*
         public async Task AddRental(List<object> rentalData)
         {
             if (rentalData == null || !(rentalData.Count == 7 || rentalData.Count == 6))
@@ -638,95 +706,120 @@ namespace VillageRMS.Services
             }
             catch (Exception ex) { }
             
-        }
+        }*/
 
-
-        public async Task UpdateEquipment(RentalEquipment updateEquipment)
+        public async Task AddRental(List<object> rentalData)
         {
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            if (rentalData == null || !(rentalData.Count == 7 || rentalData.Count == 6))
+                throw new ArgumentException("Invalid rental data");
+
+            using (var httpClient = new HttpClient())
             {
                 try
                 {
-                    await conn.OpenAsync();
+                    // endpoint
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.rental}";
 
-                    string commandString = "UPDATE rental_equipment SET name = @Name, category = @CategoryId, description = @Description, daily_rental_cost = @DailyCost WHERE equipment_id = @EquipmentId";
-
-                    using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                    // rental
+                    var rentalPayload = new
                     {
-                        cmd.Parameters.AddWithValue("@Name", updateEquipment.Name);
-                        cmd.Parameters.AddWithValue("@CategoryId", updateEquipment.CategoryId);
-                        cmd.Parameters.AddWithValue("@Description", updateEquipment.Description);
-                        cmd.Parameters.AddWithValue("@DailyCost", updateEquipment.Daily_rental_cost);
-                        cmd.Parameters.AddWithValue("@EquipmentId", updateEquipment.EquipmentId);
+                        RentalId = rentalData.Count == 7 ? rentalData[0] : null,
+                        CurrentDate = DateTime.Parse(rentalData[rentalData.Count == 7 ? 1 : 0].ToString()).ToString("yyyy-MM-dd"),
+                        CustomerId = rentalData[rentalData.Count == 7 ? 2 : 1],
+                        EquipmentId = rentalData[rentalData.Count == 7 ? 3 : 2],
+                        RentalDate = DateTime.Parse(rentalData[rentalData.Count == 7 ? 4 : 3].ToString()).ToString("yyyy-MM-dd"),
+                        ReturnDate = DateTime.Parse(rentalData[rentalData.Count == 7 ? 5 : 4].ToString()).ToString("yyyy-MM-dd"),
+                        Cost = rentalData[rentalData.Count == 7 ? 6 : 5]
+                    };
 
-                        await cmd.ExecuteNonQueryAsync();
+                    // json
+                    var jsonPayload = JsonSerializer.Serialize(rentalPayload);
+                    var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+                    // post
+                    var response = await httpClient.PostAsync(apiUrl, content);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
                     }
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    throw new Exception(e.Message);
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
                 }
-                
             }
         }
+
 
         public async Task UpdateRental(Rental rental)
         {
-            using (var conn = new MySqlConnection(_connectionString))
+            if (rental == null)
+                throw new ArgumentNullException(nameof(rental), "Rental cannot be null");
+
+            using (var httpClient = new HttpClient())
             {
-                await conn.OpenAsync();
-                
-
-                string commandString = "UPDATE rental_info SET currentdate = @CurrentDate, customer_id = @CustomerId, equipment_id = @EquipmentId, rental_date = @RentalDate, return_date = @ReturnDate, cost = @Cost WHERE rental_id = @RentalId";
-
-                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                try
                 {
-                    cmd.Parameters.AddWithValue("@CurrentDate", rental.CurrentDate.ToString("yyyy-MM-dd"));
-                    cmd.Parameters.AddWithValue("@CustomerId", rental.CustomerId);
-                    cmd.Parameters.AddWithValue("@EquipmentId", rental.EquipmentId);
-                    cmd.Parameters.AddWithValue("@RentalDate", rental.RentalDate.ToString("yyyy-MM-dd"));
-                    cmd.Parameters.AddWithValue("@ReturnDate", rental.ReturnDate.ToString("yyyy-MM-dd"));
-                    cmd.Parameters.AddWithValue("@Cost", rental.Cost);
-                    cmd.Parameters.AddWithValue("@RentalId", rental.RentalId);
+                    // endpoint
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.rental}/{rental.RentalId}";
 
-                    await cmd.ExecuteNonQueryAsync();
+                    // payload
+                    var rentalPayload = new
+                    {
+                        CurrentDate = rental.CurrentDate.ToString("yyyy-MM-dd"),
+                        CustomerId = rental.CustomerId,
+                        EquipmentId = rental.EquipmentId,
+                        RentalDate = rental.RentalDate.ToString("yyyy-MM-dd"),
+                        ReturnDate = rental.ReturnDate.ToString("yyyy-MM-dd"),
+                        Cost = rental.Cost
+                    };
+
+                    // json
+                    var jsonPayload = JsonSerializer.Serialize(rentalPayload);
+                    var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+                    // put
+                    var response = await httpClient.PutAsync(apiUrl, content);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
                 }
             }
-                        
         }
-
 
         public async Task DeleteRental(Rental rental)
         {
+            if (rental == null)
+                throw new ArgumentNullException(nameof(rental), "Rental cannot be null");
 
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            using (var httpClient = new HttpClient())
             {
-                await conn.OpenAsync();
-
-                string commandString = "DELETE FROM rental_info WHERE rental_id = @RentalId";
-
-                using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                try
                 {
-                    cmd.Parameters.AddWithValue("@RentalId", rental.RentalId);
-                    await cmd.ExecuteNonQueryAsync();
+                    // endpoint
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.rental}/{rental.RentalId}";
+
+                    // delete
+                    var response = await httpClient.DeleteAsync(apiUrl);
+
+                    // success
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception occurred: {ex.Message}");
                 }
             }
-
-        }
-
-        public async Task<RentalCategory> LoadCategoryByIdAsync(int categoryId)
-        {
-            RentalCategory result = new RentalCategory();
-            try
-            {
-                result = await GetCategoryByIdAsync(categoryId);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"An error occurred while loading the category: {ex.Message}");
-            }
-
-            return result;
         }
 
         public async Task<int> GetNextIdAsync(string table, string idcol)
@@ -734,41 +827,38 @@ namespace VillageRMS.Services
             int result = 0;
             try
             {
-                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                using (HttpClient httpClient = new HttpClient())
                 {
-                    await conn.OpenAsync();
+                    // api endpoint
+                    string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/{SystemSettings.nextID}";
+                    apiUrl = $"{apiUrl}?table={table}&idcol={idcol}";
 
-                    string commandString = $"SELECT MAX({idcol}) AS NextId from {table};";
+                    //send get
+                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
 
-                    using (MySqlCommand cmd = new MySqlCommand(commandString, conn))
+                    if (response.IsSuccessStatusCode)
                     {
-                        string finalCommand = BuildQueryString(cmd);
+                        var jsonResponse = await response.Content.ReadAsStringAsync();
+                        var data = JsonSerializer.Deserialize<JsonElement>(jsonResponse);
 
-                        using (var reader = await cmd.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-
-                                int myOrdinal = reader.GetOrdinal("NextId");
-
-                                if (reader.IsDBNull(myOrdinal))
-                                {
-                                    result = 0; //handle empty table
-                                }
-                                else
-                                {
-                                    result = reader.GetInt32("NextId");
-                                }
-
-                            }
-                        }
+                        result = data.GetProperty("nextId").GetInt32();
+                    }
+                    else
+                    {
+                        throw new Exception("Failed to fetch next ID from API.");
                     }
                 }
-            } catch (Exception ex) { }
+            }
+            catch (Exception ex)
+            {
+                // error
+                Console.WriteLine($"Error: {ex.Message}");
+            }
 
-            return result + 1; //increment by 1
+            return result; // next id of table
         }
-        
+
+
     }
 
 }

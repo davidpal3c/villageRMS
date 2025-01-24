@@ -1,6 +1,7 @@
 ﻿@page "/rental-equipment"
 @using Models
 @using Services
+@using Settings
 @inject Services.DatabaseService DatabaseService
 
 <h1>Rental Equipment</h1>
@@ -130,13 +131,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (DatabaseService.isSuccessfulConnection())
+        if (await DatabaseService.isSuccessfulConnection())
         {
-            msg = "";
+
         }
         else
         {
-            msg = "Open ssh tunnel or reconfigure connection string at MauiProgram.cs";
+            string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/test";
+            //testMsg = "Open ssh tunnel or reconfigure connection string at MauiProgram.cs";
+            testMsg = $"Test end point at {apiUrl} is unreachable.";
         }
 
         //custList = await DatabaseService.GetCustomers();
@@ -253,7 +256,7 @@ else
     {
         try
         {
-            testMsg = $"Equipment \"{newEquipData[1]}\" added successfully";
+            testMsg = $"Equipment \"{newEquipData[0]}\" added successfully";
             await DatabaseService.AddNewEquipment(newEquipData);
             await RefreshList();
             await modal.HideAsync();

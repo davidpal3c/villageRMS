@@ -36,11 +36,11 @@ namespace VillageRMS.Models
             set { _customerId = value; }
         }
 
-        public string CustomerName
+        /*public string CustomerName
         {
             get { return _customerName; }
             set { _customerName = value; }
-        }
+        }*/
 
         public int EquipmentId
         {
@@ -48,11 +48,11 @@ namespace VillageRMS.Models
             set { _equipmentId = value; }
         }
 
-        public string EquipmentName
+        /*public string EquipmentName
         {
             get { return _equipmentName; }
             set { _equipmentName = value; }
-        }
+        }*/
 
         public DateOnly RentalDate
         {
@@ -74,7 +74,7 @@ namespace VillageRMS.Models
 
         public Rental() { }
 
-        public Rental(int rentalId, DateOnly currentDate, int customerId, string customerName, int equipmentId, string equipmentName, DateOnly rentalDate, DateOnly returnDate, double cost)
+        /*public Rental(int rentalId, DateOnly currentDate, int customerId, string customerName, int equipmentId, string equipmentName, DateOnly rentalDate, DateOnly returnDate, double cost)
         {
             RentalId = rentalId;
             CurrentDate = currentDate;
@@ -86,11 +86,21 @@ namespace VillageRMS.Models
             ReturnDate = returnDate;
             Cost = cost;
         
+        }*/
+
+        public Rental(int rentalId, DateOnly currentDate, int customerId, int equipmentId, DateOnly rentalDate, DateOnly returnDate, double cost)
+        {
+            RentalId = rentalId;
+            CurrentDate = currentDate;
+            CustomerId = customerId;
+            //CustomerName = customerName;
+            EquipmentId = equipmentId;
+            //EquipmentName = equipmentName;
+            RentalDate = rentalDate;
+            ReturnDate = returnDate;
+            Cost = cost;
+
         }
 
-        public override string ToString() 
-        {
-            return $"";
-        }
     }
 }

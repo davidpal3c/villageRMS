@@ -124,7 +124,7 @@
                         if (worksheet.Cells[row, 1].Text == "") {
                             startCategory = false; //stop
                         } else {
-                            List<string> catParams = new List<string>();
+                            List<object> catParams = new List<object>();
                             for (int col = 1; col <= categoryNumberOfColumns; col++)
                             {
                                 logs.Add($"reading data at [{row},{col}] : {worksheet.Cells[row, col].Text}");
@@ -134,7 +134,8 @@
                             //insert
                             try
                             {
-                                await DatabaseService.AddNewCategoryAsync(catParams);
+                                //await DatabaseService.AddNewCategoryAsync(catParams);
+                                await DatabaseService.AddCategory(catParams);
                             }
                             catch (MySqlException ex)
                             {

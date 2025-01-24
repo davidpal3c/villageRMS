@@ -1,5 +1,6 @@
 ﻿@page "/customers"
 @using Models
+@using VillageRMS.Settings
 @inject Services.DatabaseService DatabaseService
 
 
@@ -127,13 +128,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (DatabaseService.isSuccessfulConnection())
+        if (await DatabaseService.isSuccessfulConnection())
         {
-          
+            Console.WriteLine("Test OK!");
         }
         else
         {
-            testMsg = "Open ssh tunnel or reconfigure connection string at MauiProgram.cs";
+            string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/test";
+            //testMsg = "Open ssh tunnel or reconfigure connection string at MauiProgram.cs";
+            testMsg = $"Test end point at {apiUrl} is unreachable.";
         }
 
         //custList = await DatabaseService.GetCustomers();

@@ -1,5 +1,6 @@
 ﻿@page "/rentals"
 @using Models
+@using Settings
 @inject Services.DatabaseService DatabaseService
 
 <h1>Rentals</h1>
@@ -67,8 +68,10 @@ else
                 <tr>
                     <td>@search.RentalId</td>
                     <td>@search.CurrentDate</td>
-                    <td>@search.CustomerName</td>
-                    <td>@search.EquipmentName</td>
+                    <td>@cust_lookup.FirstOrDefault(c => c.CustomerId == search.CustomerId).FirstName @cust_lookup.FirstOrDefault(c => c.CustomerId == search.CustomerId).LastName</td>
+                    @* <td>@search.CustomerName</td> *@
+                    @* <td>@search.EquipmentName</td> *@
+                    <td>@equip_lookup.FirstOrDefault(e => e.EquipmentId == search.EquipmentId).Name</td>
                     <td>@search.RentalDate</td>
                     <td>@search.ReturnDate</td>
                     <td>@search.Cost</td>
@@ -92,8 +95,10 @@ else
                     <tr>
                     <td>@rental.RentalId</td>
                     <td>@rental.CurrentDate</td>
-                    <td>@rental.CustomerName</td>
-                    <td>@rental.EquipmentName</td>
+                        <td>@cust_lookup.FirstOrDefault(c => c.CustomerId == rental.CustomerId).FirstName @cust_lookup.FirstOrDefault(c => c.CustomerId == rental.CustomerId).LastName</td>
+                        @* <td>@search.CustomerName</td> *@
+                        @* <td>@search.EquipmentName</td> *@
+                        <td>@equip_lookup.FirstOrDefault(e => e.EquipmentId == rental.EquipmentId).Name</td>
                     <td>@rental.RentalDate</td>
                     <td>@rental.ReturnDate</td>
                     <td>@rental.Cost</td>
@@ -115,6 +120,8 @@ else
 
 @code {
     private List<Rental> rentals_list = new List<Rental>();
+    private List<Customer> cust_lookup = new List<Customer>();
+    private List<RentalEquipment> equip_lookup = new List<RentalEquipment>();
     private Modal modal = default!;
     private bool showDeleteConfirmation = false;
     private string? testMsg;
@@ -132,13 +139,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (DatabaseService.isSuccessfulConnection())
+        if (await DatabaseService.isSuccessfulConnection())
         {
-            msg = "";
+
         }
         else
         {
-            msg = "Open ssh tunnel or reconfigure connection string at MauiProgram.cs";
+            string apiUrl = $"{SystemSettings.ApiURL}:{SystemSettings.ApiURLPort}/test";
+            //testMsg = "Open ssh tunnel or reconfigure connection string at MauiProgram.cs";
+            testMsg = $"Test end point at {apiUrl} is unreachable.";
         }
 
         //custList = await DatabaseService.GetCustomers();
@@ -168,10 +177,23 @@ else
         {
             bool match = true;
 
+            string custName = cust_lookup.FirstOrDefault(c => c.CustomerId == rental.CustomerId).FirstName + " " + cust_lookup.FirstOrDefault(c => c.CustomerId == rental.CustomerId).LastName;
+            string equipName = equip_lookup.FirstOrDefault(e => e.EquipmentId == rental.EquipmentId).Name;
+
+            /*
             if ((!string.IsNullOrEmpty(searchStr) &&
                 !(rental.CustomerName.Contains(searchStr, StringComparison.OrdinalIgnoreCase) ||
                 rental.EquipmentName.Contains(searchStr, StringComparison.OrdinalIgnoreCase))) || 
                 (rend.ToString() != "" && !(rental.RentalDate == rend)) || 
+                (retd.ToString() != "" && !(rental.ReturnDate == retd)))
+            {
+                match = false;
+            }*/
+
+            if ((!string.IsNullOrEmpty(searchStr) &&
+                !(custName.Contains(searchStr, StringComparison.OrdinalIgnoreCase) ||
+                equipName.Contains(searchStr, StringComparison.OrdinalIgnoreCase))) ||
+                (rend.ToString() != "" && !(rental.RentalDate == rend)) ||
                 (retd.ToString() != "" && !(rental.ReturnDate == retd)))
             {
                 match = false;
@@ -223,6 +245,8 @@ else
         try
         {
             rentals_list = await DatabaseService.GetRentals();
+            cust_lookup = await DatabaseService.GetCustomers();
+            equip_lookup = await DatabaseService.GetRentalEquipmentAsync();
             filteredData = null;
         }
         catch (Exception e)
@@ -278,7 +302,9 @@ else
             var parameters = new Dictionary<string, object>
             {
                 { "Rental", rental },
-                { "OnClickCallback", EventCallback.Factory.Create<Rental>(this, TestSuccessCallbackUpdate)}
+                { "OnClickCallback", EventCallback.Factory.Create<Rental>(this, TestSuccessCallbackUpdate)},
+                { "customerOptions", cust_lookup },
+                { "equipmentOptions", equip_lookup }
             };
 
             await modal.ShowAsync<UpdateRentalModal>(title: "Update Rental", parameters: parameters);
