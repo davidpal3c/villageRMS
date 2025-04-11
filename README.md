@@ -18,7 +18,8 @@ See ![Specifications](docs/specifications.md) for Use cases and Functional Speci
 
 
 ## Technologies
-
+- .NET /C#
+- [Visual Studio](https://visualstudio.microsoft.com/)
 - [MySQL Connector](https://www.mysql.com/products/connector/)
 - [Microsoft Maui](https://dotnet.microsoft.com/apps/maui)
 - [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
