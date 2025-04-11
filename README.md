@@ -18,7 +18,7 @@ See ![Specifications](docs/specifications.md) for Use cases and Functional Speci
 
 
 ## Technologies
-- [.NET/C#](https://dotnet.microsoft.com/en-us/download)
+- [.NET/C#](https://dotnet.microsoft.com/)
 - [Visual Studio](https://visualstudio.microsoft.com/)
 - [MySQL Connector](https://www.mysql.com/products/connector/)
 - [Microsoft Maui](https://dotnet.microsoft.com/apps/maui)
